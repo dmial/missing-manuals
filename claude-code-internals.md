@@ -31,11 +31,11 @@ if (process.env.CLAUDE_AGENT_SDK_VERSION)
 ```
 Твой код (Python/TypeScript)
   └── Agent SDK (библиотека-обёртка)
-        └── Claude Code (ядро/рантайм — скомпилированный бинарник)
+        └── Claude Code (ядро/рантайм — TypeScript-бандл с встроенным Node.js)
               └── Anthropic API
 ```
 
-Из документации Anthropic: *"The Claude Agent SDK exposes the same battle-tested infrastructure powering Claude Code as a programmable library."*
+Из документации Anthropic: *"The Agent SDK gives you the same tools, agent loop, and context management that power Claude Code, programmable in Python and TypeScript."*
 
 ## 3. Мультиагентность в Agent SDK (на примере L7)
 
