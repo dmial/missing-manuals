@@ -11,6 +11,7 @@
 - [claude-code-plugins.md](claude-code-plugins.md) — skills, plugins и marketplaces в Claude Code.
 - [learning-web-development.md](learning-web-development.md) — базовые понятия фронтенд-стека и сборки.
 - [eta-and-ai-rollups.md](eta-and-ai-rollups.md) — финансовая модель ETA / search fund / AI-rollup и анатомия покупки сервисной компании.
+- [agent-evals.md](agent-evals.md) — бизнес-эвалы для агентов: бенчмарк vs челлендж, грейдер, среда, контаминация и различение, ремесленный цикл сборки задач (на примере BitGN).
 
 ## Как они написаны
 
