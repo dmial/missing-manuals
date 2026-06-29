@@ -14,6 +14,7 @@
 - [agent-evals.md](agent-evals.md) — бизнес-эвалы для агентов: бенчмарк vs челлендж, грейдер, среда, контаминация и различение, ремесленный цикл сборки задач (на примере BitGN).
 - [agentic-knowledge-base.md](agentic-knowledge-base.md) — база знаний для агента: три слоя (сырьё → граф фактов → синтез-вики), активный routing-индекс, провенанс и шов «факт/вывод». Karpathy → OKF → Abdullin в связке, на примерах справочной (налог самозанятого в Португалии) и исследовательской (рыночный ресёрч) баз.
 - [reproducible-dev-environments.md](reproducible-dev-environments.md) — воспроизводимые dev-среды слоями: Homebrew vs Nix flakes, `flake.lock`, language lockfiles, Docker/VM, Railway/PaaS, Terraform и Hetzner. Карта выбора минимального достаточного набора и вопрос «кто владеет риском?».
+- [agent-over-chat-gateway.md](agent-over-chat-gateway.md) — системные уровни агентных решений на примере обработки лидов в Telegram: слои API/SDK/фреймворк/харнес, рантайм vs харнес, где крутится (ВМ/Managed Agents), чат-как-шина-событий и сессия-на-лида, треды-как-сессии и роутер, три ценности Гермеса и реальность «подписка vs API-ключ».
 
 ## Как они написаны
 
