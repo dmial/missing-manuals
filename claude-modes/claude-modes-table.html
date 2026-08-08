@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Desktop: Chat · Cowork · Code</title>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --card: #ffffff;
+    --ink: #1a1a17;
+    --muted: #6e6a61;
+    --line: #e6e2d8;
+    --line-strong: #d6d1c4;
+    --chat: #3b6ea5;
+    --cowork: #c2571f;
+    --code: #3e7d54;
+    --chat-bg: #eef3f9;
+    --cowork-bg: #faf0e8;
+    --code-bg: #edf5f0;
+    --yes: #2f7d4f;
+    --yes-bg: #e3f1e8;
+    --no: #a94a3f;
+    --no-bg: #f7e9e6;
+    --badge-bg: #f1eee6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #191817;
+      --card: #211f1e;
+      --ink: #eae7e0;
+      --muted: #a39e93;
+      --line: #38352f;
+      --line-strong: #4a463d;
+      --chat: #7fa8d4;
+      --cowork: #e08a55;
+      --code: #7cb894;
+      --chat-bg: #212b36;
+      --cowork-bg: #322620;
+      --code-bg: #22302a;
+      --yes: #7cc79b;
+      --yes-bg: #24352b;
+      --no: #d98a7f;
+      --no-bg: #3a2a27;
+      --badge-bg: #2c2a25;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 32px 20px 48px;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  .wrap { max-width: 1140px; margin: 0 auto; }
+  h1 { font-size: 24px; margin: 0 0 4px; letter-spacing: -0.3px; }
+  .sub { color: var(--muted); font-size: 13.5px; margin-bottom: 24px; }
+  .sub .dot { margin: 0 6px; opacity: .5; }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--card);
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 14px 16px;
+    vertical-align: top;
+    border-top: 1px solid var(--line);
+    text-align: left;
+    font-size: 13.5px;
+  }
+  thead th { border-top: none; padding: 16px; background: var(--card); }
+  col.c-feature { width: 17%; }
+  col.c-mode { width: 27.67%; }
+
+  .mode-head { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .mode-head .swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+  .mode-sub { font-weight: 400; font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  th.chat-h  { background: var(--chat-bg); }
+  th.cowork-h{ background: var(--cowork-bg); }
+  th.code-h  { background: var(--code-bg); }
+  .chat-h  .swatch { background: var(--chat); }
+  .cowork-h .swatch{ background: var(--cowork); }
+  .code-h  .swatch { background: var(--code); }
+
+  td.feature {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--card) 60%, var(--bg));
+  }
+  td.feature .hint { display: block; font-weight: 400; font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+  .gist { margin: 0 0 8px; font-weight: 700; letter-spacing: .1px; }
+
+  tr.group td {
+    background: var(--badge-bg);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 8px 16px;
+  }
+
+  /* Варианты локально/облако — строками внутри ячейки */
+  .opts { display: flex; flex-direction: column; gap: 9px; }
+  .opt { display: flex; gap: 9px; align-items: flex-start; }
+  .opt .subhead { flex: none; min-width: 68px; text-align: center; margin: 0; }
+  .subhead {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    background: var(--badge-bg);
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-bottom: 6px;
+  }
+
+  /* Зоны доступа — авторизованная/неавторизованная, внутри ячейки */
+  .zones { display: flex; flex-direction: column; gap: 10px; margin-top: 2px; }
+  .zone { border-left: 2px solid var(--line-strong); padding-left: 10px; }
+  .zone .zhead {
+    display: block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.07em; color: var(--muted); margin-bottom: 3px;
+  }
+  .zone.void { border-left-style: dashed; }
+  .zone.void .zhead { color: var(--no); }
+
+  .yes, .no {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 12.5px;
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+  .yes { color: var(--yes); background: var(--yes-bg); }
+  .no  { color: var(--no);  background: var(--no-bg); }
+  .note-inline { display: block; font-size: 12px; color: var(--muted); margin-top: 5px; font-weight: 400; }
+  .dim { color: var(--muted); }
+
+  code {
+    font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background: var(--badge-bg);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  sup { color: var(--muted); }
+
+  .footnotes { margin-top: 18px; color: var(--muted); font-size: 12.5px; }
+  .footnotes p { margin: 4px 0; }
+  .updated { margin-top: 14px; font-size: 11.5px; color: var(--muted); }
+
+  /* Разделы документа */
+  h2.section { font-size: 19px; margin: 40px 0 4px; letter-spacing: -0.2px; }
+  .lead { color: var(--muted); font-size: 12.5px; margin: 0 0 14px; }
+  .prose p { margin: 10px 0; font-size: 14px; }
+  .prose h3 { font-size: 14.5px; margin: 22px 0 2px; }
+  .modecard { background: var(--card); border: 1px solid var(--line-strong); border-radius: 10px; padding: 13px 16px; margin: 10px 0; }
+  .modecard h3 { margin: 0 0 4px; font-size: 14.5px; display: flex; gap: 8px; align-items: center; }
+  .modecard h3 .swatch { width: 9px; height: 9px; border-radius: 3px; flex: none; }
+  .modecard p { margin: 6px 0; font-size: 13.5px; }
+  .sw-cowork { background: var(--cowork); }
+  .sw-code { background: var(--code); }
+  pre {
+    background: var(--badge-bg); border: 1px solid var(--line); border-radius: 8px;
+    padding: 9px 12px; font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    overflow-x: auto; margin: 8px 0;
+  }
+  table.mini th { background: var(--badge-bg); font-size: 12.5px; }
+  table.mini td { font-size: 13px; }
+  .recipes { font-size: 13.5px; margin: 8px 0 0; padding-left: 20px; }
+  .recipes li { margin: 6px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Claude Desktop: три режима</h1>
+  <div class="sub">Сравнение по фичам<span class="dot">·</span>варианты «локально / облако» идут строками внутри ячеек; место запуска выбирается при старте задачи и фиксируется на сессию (у Chat выбора нет)</div>
+
+  <table>
+    <colgroup>
+      <col class="c-feature"><col class="c-mode"><col class="c-mode"><col class="c-mode">
+    </colgroup>
+    <thead>
+      <tr>
+        <th></th>
+        <th class="chat-h"><div class="mode-head"><span class="swatch"></span>Chat</div><div class="mode-sub">диалог с моделью</div></th>
+        <th class="cowork-h"><div class="mode-head"><span class="swatch"></span>Cowork</div><div class="mode-sub">агент для файлов и задач</div></th>
+        <th class="code-h"><div class="mode-head"><span class="swatch"></span>Code</div><div class="mode-sub">агент-разработчик</div></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="group"><td colspan="4">Среда</td></tr>
+
+      <tr>
+        <td class="feature">Песочница vs прямое окружение<span class="hint">что изолировано — весь агентный цикл или только исполнение кода<sup>3</sup></span></td>
+        <td>
+          <div class="opts">
+            <div class="opt"><span class="subhead">Локально</span><span class="dim">Не бывает: Chat выполняется только в облаке, десктоп-приложение — лишь окно к нему</span></div>
+            <div class="opt"><span class="subhead">Облако</span><span>Песочница (контейнер) — но не рабочая среда агента, а услуга под вызов: диалог Chat крутится в веб-бэкенде claude.ai, у которого рабочей среды нет вовсе, и под действие — выполнить код, собрать файл, запустить скилл — бэкенд заказывает контейнер, как заказывает веб-поиск (то есть Chat как агент собран из server tools — с одним исключением: локальные MCP-серверы исполняет десктоп-приложение на твоей машине)<sup>5</sup></span></div>
+          </div>
+        </td>
+        <td>
+          <div class="opts">
+            <div class="opt"><span class="subhead">Локально</span><span><b>Две среды на твоей машине</b> — «two execution environments on the member's device». Агентный цикл идёт нативно на устройстве, а исполнение кода — «in an isolated virtual machine (VM)», изолированной гипервизором платформы (Apple Virtualization.framework на macOS, Hyper-V на Windows). Изоляция есть и локально, но она про код, а не про весь агент</span></div>
+            <div class="opt"><span class="subhead">Облако</span><span><b>Обе среды у Anthropic</b> — «the agent loop and code execution run on Anthropic's servers»: своя песочница на каждую сессию, уничтожается вместе с ней<sup>4</sup></span></div>
+          </div>
+        </td>
+        <td>
+          <div class="opts">
+            <div class="opt"><span class="subhead">Локально</span><span><b>Прямое окружение машины</b> — песочницы нет: твои тулы, env, dev-сервер</span></div>
+            <div class="opt"><span class="subhead">Облако</span><span>Песочница (VM) на серверах Anthropic — внутри доступен даже Docker<sup>4</sup></span></div>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="feature">Жизненный цикл окружения<span class="hint">сколько живёт среда исполнения</span></td>
+        <td>Эпизодический, но не одноразовый: ~5 минут простоя → заморозка (checkpoint), следующее обращение размораживает контейнер вместе с файлами; предел — 30 дней от создания (цифры из API-документации этого же механизма)</td>
+        <td>= сессии (локально и в облаке): состояние — файлы, пакеты — копится от хода к ходу; задача идёт, пока ты ушёл</td>
+        <td>
+          <div class="opts">
+            <div class="opt"><span class="subhead">Локально</span><span>«Бесконечный» — не ограничен сессией: среда и есть твоя машина</span></div>
+            <div class="opt"><span class="subhead">Облако</span><span>= сессии, как у Cowork</span></div>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="feature">Доступ к файлам</td>
+        <td>Только вложения в чат; результаты — файлами в чат</td>
+        <td>
+          <div class="opts">
+            <div class="opt"><span class="subhead">Локально</span><span>Подключённые папки напрямую, запись сразу на диск</span></div>
+            <div class="opt"><span class="subhead">Облако</span><span>Через мост десктоп-приложения: файл копируется с твоего диска в облако (разовый снимок), результат записывается обратно на диск. Работает, пока приложение онлайн. Путь без моста: git с готовым токеном (PAT) — кредо-прокси форвардит его как есть; интерактивная OAuth-авторизация из облака заблокирована (раздел «Git и GitHub» ниже)</span></div>
+          </div>
+        </td>
+        <td>
+          <div class="opts">
+            <div class="opt"><span class="subhead">Локально</span><span>Папка напрямую</span></div>
+            <div class="opt"><span class="subhead">Облако</span><span>Клон GitHub-репо в песочнице; результат работы возвращается на GitHub коммитами (<code>git push</code>: ветка, PR) — других путей наружу нет, твой локальный диск недоступен</span></div>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="group"><td colspan="4">Коннекторы (MCP) — каналы подключения</td></tr>
+
+      <tr>
+        <td class="feature">Settings → Connectors: удалённые<span class="hint">облачные сервисы по OAuth: почта, календарь, CRM…; также приносятся плагинами</span></td>
+        <td><span class="yes">✓</span><span class="note-inline">в вебе и в десктопе</span></td>
+        <td><span class="yes">✓</span><span class="note-inline">и локально, и в облачной сессии</span></td>
+        <td>
+          <div class="opts">
+            <div class="opt"><span class="subhead">Локально</span><span><span class="yes">✓</span> подхватываются автоматически при логине через аккаунт claude.ai; список — команда <code>/mcp</code></span></div>
+            <div class="opt"><span class="subhead">Облако</span><span><span class="yes">✓</span> выбираются при создании сессии; трафик идёт через серверы Anthropic</span></div>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="feature">Settings → Connectors: локальные MCP-серверы<span class="hint">серверы, запущенные на твоей машине; настраиваются в десктоп-приложении</span></td>
+        <td><span class="yes">✓</span><span class="note-inline">в десктопе (в веб-версии чата — нет)</span></td>
+        <td><span class="yes">✓</span><span class="note-inline">локально — напрямую; в облачной сессии — через мост</span></td>
+        <td><span class="no">✕</span><span class="note-inline">конфиг десктоп-приложения Code не читает; свои локальные серверы — из двух каналов ниже</span></td>
+      </tr>
+
+      <tr>
+        <td class="feature">Файл <code>.mcp.json</code> в корне репо<span class="hint">версионируется в git, общий для команды; руками или <code>claude mcp add --scope project</code></span></td>
+        <td><span class="no">✕</span></td>
+        <td><span class="no">✕</span><sup>2</sup></td>
+        <td><span class="yes">✓</span><span class="note-inline">локально; в облаке приезжает с клоном репо</span></td>
+      </tr>
+
+      <tr>
+        <td class="feature">Личный конфиг <code>~/.claude.json</code><span class="hint">наполняется <code>claude mcp add</code>; скоупы: local (дефолт) — запись под путём проекта в секции <code>projects</code>, user — глобальная, на все проекты</span></td>
+        <td><span class="no">✕</span></td>
+        <td><span class="no">✕</span></td>
+        <td>
+          <div class="opts">
+            <div class="opt"><span class="subhead">Локально</span><span><span class="yes">✓</span> скоупы: local (проект, приватно) и user (все проекты)</span></div>
+            <div class="opt"><span class="subhead">Облако</span><span><span class="no">✕</span> <code>~/.claude.json</code> остаётся на машине, не переносится</span></div>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="group"><td colspan="4">Скиллы — каналы доставки</td></tr>
+
+      <tr>
+        <td class="feature">Settings → Skills — аккаунтный слой<span class="hint">встроенные + свои ZIP-ом; claude.ai и десктоп — два окна к одному списку</span></td>
+        <td><span class="yes">✓</span><span class="note-inline">основной канал</span></td>
+        <td><span class="yes">✓</span><span class="note-inline">тот же слой, что у Chat</span></td>
+        <td>
+          <div class="opts">
+            <div class="opt"><span class="subhead">Локально</span><span><span class="no">✕</span> аккаунтный слой не подхватывается<sup>1</sup></span></div>
+            <div class="opt"><span class="subhead">Облако</span><span><span class="yes">✓</span> скиллы этого слоя подгружаются в сессию автоматически</span></div>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="feature">Плагины: каталог в приложении<span class="hint">Settings → Plugins / директория claude.ai; бандлы скиллов, коннекторов, MCP — ставятся на аккаунт</span></td>
+        <td><span class="yes">✓ частично</span><span class="note-inline">скиллы из плагинов работают и в Chat; хуки и суб-агенты — только в Cowork</span></td>
+        <td><span class="yes">✓</span><span class="note-inline">полный набор; скиллы в неймспейсе <code>плагин:скилл</code></span></td>
+        <td><span class="no">✕</span><span class="note-inline">у Code своя плагинная система — строкой ниже</span></td>
+      </tr>
+
+      <tr>
+        <td class="feature">Плагины: команда <code>/plugin</code> в CLI<span class="hint">маркетплейсы; включение — <code>enabledPlugins</code> в личном <code>~/.claude/settings.json</code> или проектном <code>.claude/settings.json</code></span></td>
+        <td><span class="no">✕</span></td>
+        <td><span class="no">✕</span></td>
+        <td>
+          <div class="opts">
+            <div class="opt"><span class="subhead">Локально</span><span><span class="yes">✓</span> оба скоупа — личный и проектный</span></div>
+            <div class="opt"><span class="subhead">Облако</span><span><span class="yes">✓</span> объявленные в <code>.claude/settings.json</code> репо (приезжают с клоном); личный <code>~/.claude/settings.json</code> не переносится</span></div>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="feature">Файлы скиллов на диске<span class="hint"><code>~/.claude/skills</code> личные · <code>.claude/skills</code> проекта (в git) · enterprise</span></td>
+        <td><span class="no">✕</span></td>
+        <td><span class="no">✕</span><sup>2</sup></td>
+        <td>
+          <div class="opts">
+            <div class="opt"><span class="subhead">Локально</span><span><span class="yes">✓</span> все уровни</span></div>
+            <div class="opt"><span class="subhead">Облако</span><span><span class="yes">✓</span> проектные <code>.claude/skills</code> приезжают с клоном; личные <code>~/.claude/skills</code> остаются на машине</span></div>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="group"><td colspan="4">Артефакты-приложения — живые страницы</td></tr>
+
+      <tr>
+        <td class="feature">Где живёт артефакт<span class="hint">на серверах Anthropic — или на твоём устройстве</span></td>
+        <td><b>Серверы Anthropic.</b> Пока не опубликован — часть переписки: живёт внутри диалога claude.ai и отдельного существования не имеет</td>
+        <td><b>Твоё устройство.</b> Единственный из трёх, кто лежит локально — в хранилище приложения Claude Desktop: галерея Artifacts в сайдбаре, история версий со сравнением и откатом. На другое устройство не переезжает; облачная сессия правит его тоже через приложение</td>
+        <td><b>Серверы Anthropic</b> — плюс исходник у тебя. Страница-копия хранится на инфраструктуре Anthropic (зритель грузит её с песочничного домена <code>*.claudeusercontent.com</code>), а исходник остаётся обычным файлом <code>.html</code>/<code>.md</code> в проекте — на диске или в облачной сессии</td>
+      </tr>
+
+      <tr>
+        <td class="feature">Публикация<span class="hint">что этим словом названо — и в какую зону оно выводит: под аккаунтом или без</span></td>
+        <td>
+          <p class="gist">«Опубликовать» здесь и значит «сделать публичным».</p>
+          <div class="zones">
+            <div class="zone"><span class="zhead">Авторизованная</span>До Publish артефакт — часть переписки и виден только тебе. Publish вынимает его в раздел Artifacts в сайдбаре: теперь он живёт вне исходного диалога. На Team/Enterprise вместо публичности есть Share — доступ членам организации, каждый под своим аккаунтом</div>
+            <div class="zone"><span class="zhead">Неавторизованная</span>Сюда Publish и целится на Free/Pro/Max: ссылку открывает кто угодно, аккаунт Claude не нужен. Публикация — это ещё и выключатель для данных: облачное хранилище (<code>window.storage</code>) работает только у опубликованного артефакта. Пока не опубликован — сохранить он не может ничего, запись просто не проходит. Снимешь публикацию — все накопленные данные удалятся безвозвратно</div>
+          </div>
+        </td>
+        <td>
+          <p class="gist">Публикации нет как действия — есть только версии.</p>
+          <div class="zones">
+            <div class="zone"><span class="zhead">Авторизованная</span>Здесь всё и происходит: артефакт существует с момента создания, лежит на устройстве под твоим аккаунтом в приложении, каждое изменение просто добавляет версию в историю (сравнение, откат). Публиковать нечего — он и так есть</div>
+            <div class="zone void"><span class="zhead">Неавторизованная · пусто</span>Зоны не существует. Отдать страницу человеку без аккаунта нельзя ни одним способом: публичной ссылки у Cowork-артефакта не бывает вообще</div>
+          </div>
+        </td>
+        <td>
+          <p class="gist">«Опубликовать» ≠ «открыть всем»: публикация приватна.</p>
+          <div class="zones">
+            <div class="zone"><span class="zhead">Авторизованная</span>Сюда попадает всё по умолчанию. Publish — явное действие с подтверждением («Claude wants to publish … to a private page on claude.ai»): страница ложится на серверы Anthropic по приватному URL и видна только тебе, пока не поделишься. Повторная публикация — тот же URL и новая версия, в шапке выбираешь, какую версию видят зрители; чтобы править из другой сессии, надо дать Claude этот URL. Доступ выдают конкретным людям или организации — они входят под своими аккаунтами. Коннекторы живут только в этой зоне: вызов идёт от имени зрителя, значит зритель обязан быть</div>
+            <div class="zone"><span class="zhead">Неавторизованная</span>Отдельный шаг поверх публикации — External sharing: ссылка открывается кем угодно без входа в claude.ai (на Pro/Max это единственный способ поделиться; на Team/Enterprise Owner должен включить). Цена перехода — живые данные: звать коннектор не от чьего имени, поэтому страница с коннекторами в эту зону не попадает ни на одном плане</div>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="feature">Вызовы MCP из артефакта<span class="hint">кто здесь MCP-хост, тот и исполняет вызовы</span></td>
+        <td>Инфраструктура Anthropic: из браузерной песочницы наружу один выход — api.anthropic.com, поэтому запрос к MCP-серверу физически уходит с серверов Anthropic, а браузер зрителя самих серверов не касается никогда. Каким полем это выражено в теле запроса — не документировано: по роли это ровно то, что делает <code>mcp_servers</code> (адрес держит сторона Anthropic), но утверждать, что используется именно публичное поле API, оснований нет</td>
+        <td>Само приложение Claude Desktop: локальные файлы и stdio-серверы оно читает напрямую — без модели и расхода токенов; коннекторы — те, что одобрены артефакту при создании/обновлении, при открытии страница перезапрашивает свежие данные (маршрутизация remote-коннекторов не документирована; по архитектуре MCP соединение держит хост-приложение). Обновление артефакта из облачной сессии сбрасывает выданные права</td>
+        <td><b>claude.ai на стороне зрителя.</b> Различать надо два момента жизни страницы. Пока Claude её <i>собирает</i>, он работает инструментами твоей сессии — в том числе локальными MCP-серверами из <code>.mcp.json</code>: они дают данные, которые запекаются в HTML намертво. Когда страницу <i>открывают</i>, сессии давно нет, страница крутится в чужом браузере — и до серверов на твоей машине ей не дотянуться. Живыми остаются только коннекторы claude.ai: при публикации Claude декларирует список, вне списка страница не позовёт ничего. И каждый вызов идёт <b>через аккаунт того, кто смотрит</b>: claude.ai спрашивает у зрителя разрешение, дёргает коннектор от его имени, возвращает результат — кредов страница не видит вообще, а двое зрителей увидят разные данные по своим правам (у кого коннектора нет, увидит страницу без живых секций). Отсюда же и потолок шаринга: анонимный зритель по публичной ссылке не залогинен — аккаунта, через который делать вызов, просто нет, поэтому страница с коннекторами публичной не бывает ни на одном плане</td>
+      </tr>
+
+      <tr>
+        <td class="feature">Персистентность данных<span class="hint">где живёт состояние мини-приложения</span></td>
+        <td>Единственный режим с настоящим хранилищем: <code>window.storage</code> — облачное KV Anthropic со скоупами personal/shared; работает только после Publish, unpublish стирает безвозвратно (разрез ниже)</td>
+        <td>Своего хранилища нет: состояние — сам HTML (обновление = новая версия) плюс перезапрос данных из сервисов при каждом открытии</td>
+        <td>Своего хранилища нет: страница статична, «no backend» — форма ничего не сохранит; свежесть — только перезапросом через коннекторы</td>
+      </tr>
+
+      <tr>
+        <td class="feature">Что видит зритель<span class="hint">права и роли того, кто открыл страницу</span></td>
+        <td>Все открывшие видят одну страницу, но не одни данные: shared-скоуп хранилища общий для всех, personal — у каждого свой</td>
+        <td>Самый закрытый режим: делиться можно только внутри организации и только на Team/Enterprise. Зритель тянет данные через свой доступ, не через твой</td>
+        <td>Роли: «зритель» видит те версии, что ты открыл, «редактор» (Team/Enterprise) публикует новые — из своей сессии, по URL страницы. Данные каждый видит свои: коннектор дёргается от его имени, у кого связи нет — увидит страницу без живых секций</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footnotes">
+    <p><sup>1</sup> Локальный Code аккаунтный слой не читает — скиллы там живут файлами и плагинами. Облачные Code-сессии, напротив, подгружают скиллы, включённые на claude.ai, автоматически.</p>
+    <p><sup>2</sup> Подхват проектных конфигов из подключённой папки (<code>.claude/skills</code>, <code>.mcp.json</code>) в Cowork не документирован; сторонние разборы подтверждают, что наборы Cowork и Code живут раздельно.</p>
+    <p><sup>3</sup> Термины: «песочница» — изолированная среда исполнения; в скобках реализация: <b>контейнер</b> — изоляция на общем ядре Linux (namespaces + cgroups), <b>VM</b> — виртуальная машина с собственным ядром, стенки толще. «Прямое окружение» — работа без изоляции, в реальной среде твоей машины.</p>
+    <p><sup>4</sup> Почему в облаке Cowork — контейнер, а Code — VM: Anthropic причин не публикует, но логика читается. Code обещает Docker внутри сессии (<code>docker compose</code> для сервисов проекта), а Docker'у нужно собственное ядро — непривилегированный контейнер его дать не может (проверено: в Cowork-контейнере docker-клиент лежит, но демон не поднимается). Плюс профиль нагрузки и риска: Code исполняет произвольный код репозитория — сборки, тесты, dev-серверы, — и толстые стенки VM уместнее; задачи Cowork — файлы, документы, коннекторы с курируемым тулингом: контейнера хватает, стартует он быстрее и пакуется на сервере плотнее.</p>
+    <p><sup>5</sup> Где вообще «живёт» агент. Агентский цикл — программа, которая передаёт модели контекст, исполняет её tool-вызовы и возвращает результаты, — есть во всех трёх режимах: Chat с его поиском и исполнением кода — такой же агент. Модель при этом всегда снаружи, на инференс-серверах: у неё ни файлов, ни шелла — только текст на входе и выходе. Различие режимов — <b>где стоит цикл и на каком расстоянии от него инструменты</b>. В Cowork и Code цикл — процесс внутри среды сессии (в локальном Code — прямо на твоей машине), и ядро инструментов работает на нулевом расстоянии: Bash — дочерний процесс цикла, Write — запись на собственный диск; среда — не подрядчик, а окружающий мир, который между вызовами просто продолжает существовать вокруг со всем состоянием. В Chat цикл крутится в бэкенде claude.ai вне какой-либо рабочей среды, и все инструменты до единого — вызовы других сервисов: поиск — сервис, исполнение кода — сервис, выдающий контейнер. В API этот водораздел документирован буквально: <b>client tools</b> — исполняет сторона цикла (Bash, text_editor), <b>server tools</b> — исполняет инфраструктура Anthropic (web search, web fetch, code execution); подробно — в разрезе «одна задача, два исполнителя» ниже. Наблюдаемая проверка: в Chat контейнер может истечь посреди диалога — и диалог продолжится с новым; в Cowork умерла среда — кончилась сессия, потому что сессия и есть жизнь цикла в его среде.</p>
+    <p>Скилл, созданный агентом в сессии, — просто папка со SKILL.md: чтобы пережить сессию, он должен попасть в один из каналов выше.</p>
+  </div>
+  <h2 class="section">Разрез: client tools и server tools — одна задача, два исполнителя</h2>
+  <div class="lead">Термины и цитаты — из документации Messages API. Это фундамент под остальными разрезами: четыре git-контура ниже — частный случай этого деления.</div>
+  <div class="prose">
+    <p>Определение документированное и короткое. <b>Client tools</b> «run in your application» — их исполняет та сторона, что крутит агентский цикл: <code>bash</code>, <code>text_editor</code>, любые собственные тулы. <b>Server tools</b> «run on Anthropic's infrastructure» — их исполняет сама Anthropic: <code>web_search</code>, <code>web_fetch</code>, <code>code_execution</code>.</p>
+    <p>Различие видно не в том, <i>что</i> тул делает, а в том, <b>прерывается ли ход</b>. Клиентский вызов останавливает генерацию: API возвращает <code>stop_reason: "tool_use"</code> — мяч у вызывающей стороны, исполни и пришли <code>tool_result</code> вторым запросом. Серверный не останавливает ничего: Anthropic исполняет тул сама, результат приходит в том же ответе, и вызывающая сторона может вообще не заметить, что был вызов.</p>
+    <p>Практический смысл деления в том, что <b>инструмент берёт личность у той стороны, которая его исполняет</b>: её сеть, её файлы, её креды, её IP, её права. Поэтому одну и ту же задачу два пути решают по-разному — и равнозначными они не бывают почти никогда.</p>
+  </div>
+
+  <table class="mini">
+    <colgroup><col style="width:17%"><col style="width:24%"><col style="width:24%"><col style="width:35%"></colgroup>
+    <thead>
+      <tr><th>Задача</th><th>Клиентский путь</th><th>Серверный путь</th><th>Чем оборачивается разница</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="feature">Выполнить код, собрать файл</td>
+        <td><code>bash</code> и <code>text_editor</code> — процессы в среде сессии</td>
+        <td><code>code_execution</code> — контейнер на инфраструктуре Anthropic</td>
+        <td>Где остался результат: файл лежит рядом на диске — или в чужом контейнере, откуда его ещё надо забрать</td>
+      </tr>
+      <tr>
+        <td class="feature">Достать содержимое по URL</td>
+        <td><code>curl</code> в шелле</td>
+        <td><code>web_fetch</code></td>
+        <td>Чья сеть и чья личность. curl ходит из твоей среды: локально — куда угодно, включая интранет, localhost и страницы за твоей авторизацией; из облачной песочницы — только по allowlist. web_fetch уходит с серверов Anthropic: твой allowlist ему безразличен, но и твоих кук у него нет</td>
+      </tr>
+      <tr>
+        <td class="feature">Найти в интернете</td>
+        <td>Поисковый MCP-сервер на своём ключе</td>
+        <td><code>web_search</code></td>
+        <td>Чей ключ, чья подписка, чей регион выдачи</td>
+      </tr>
+      <tr>
+        <td class="feature">Прочитать PR, завести issue</td>
+        <td><code>git</code> и <code>gh</code> в шелле</td>
+        <td>GitHub-коннектор (MCP)</td>
+        <td>Где лежат креды. Шеллу они нужны <b>в самой среде</b> — отсюда четыре контура в следующем разрезе; коннектор держит токен <b>у себя</b>, и среде не нужно ничего. В облачной сессии без кредов первый путь мёртв, второй работает как ни в чём не бывало</td>
+      </tr>
+      <tr>
+        <td class="feature">Позвать MCP-сервер</td>
+        <td>Сервер прописан в десктоп-приложении или в <code>.mcp.json</code> — соединение держит приложение или сессия</td>
+        <td>Сервер объявлен полем <code>mcp_servers</code> в теле запроса — соединение держит инфраструктура Anthropic</td>
+        <td>Тул буквально один и тот же, а сторона исполнения разная. Следствие жёсткое: stdio, localhost и интранет доступны только клиентскому пути — разбор ниже</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="prose">
+    <h3>Что значит «объявлен в запросе к API»</h3>
+    <p>У модели нет никаких «подключений». Каждая её реплика — это один HTTP-запрос к Anthropic с JSON-телом, и всё, что модель знает об инструментах, лежит в этом теле списком. Ничего постоянного за этим не стоит: соседний запрос без нужного поля про инструмент не знает вовсе. И два разных поля тела дают два разных способа выдать тул:</p>
+    <pre>POST /v1/messages
+{
+  "model": "claude-opus-5",
+  "messages": [ ... ],
+
+  "tools": [                        // клиентские: «эти я исполню сам»
+    { "name": "run_tests", "input_schema": { ... } }
+  ],
+
+  "mcp_servers": [                  // серверные: «сходи туда сама»
+    { "type": "url",
+      "url": "https://mcp.example.com/sse",
+      "name": "example-mcp",
+      "authorization_token": "..." }
+  ]
+}</pre>
+    <p><code>tools</code> — список обещаний: перечислив тул здесь, вызывающая сторона обязуется исполнить его сама. Модель вызвала — ход остановился, дальше её работа.</p>
+    <p><code>mcp_servers</code> — адрес и ключ от чужой двери. Дальше вызывающая сторона не делает <b>ничего</b>: инфраструктура Anthropic сама открывает HTTPS-соединение к указанному URL, спрашивает у сервера список его тулов, вызывает нужный и кладёт в тот же ответ блоки <code>mcp_tool_use</code> и <code>mcp_tool_result</code>. Токен она просто форвардит как Bearer — добыть и обновлять его обязан ты сам.</p>
+    <p>Вот это и есть «объявлен в запросе»: сервер никуда не установлен и ни к чему не привязан — он <b>назван строкой в теле конкретного запроса</b>. Отсюда и жёсткая граница: поле <code>type</code> принимает единственное значение <code>"url"</code>, а сам URL обязан начинаться с <code>https://</code>. Локальные stdio-серверы этим путём не подключаются в принципе — Anthropic просто некуда идти, процесс живёт на твоей машине. Поэтому сервер, который запускается процессом рядом с тобой или смотрит в localhost и интранет, существует только на клиентской стороне: соединение к нему держит тот, кто крутит цикл рядом с ним, — десктоп-приложение (Chat и Cowork) или сама сессия (<code>.mcp.json</code> в Code).</p>
+
+    <p><b>Свернуть весь разрез можно в одну фразу: client tool или server tool — это вопрос о том, на какой стороне живёт MCP-клиент.</b> MCP-клиент — та сущность, которая открывает соединение, здоровается с сервером и запрашивает у него список инструментов (<code>tools/list</code>). Модель не делает этого никогда и ни в одном режиме — ей приходит готовый список. У remote-сервера клиент стоит на стороне Anthropic. У локального им работает программа рядом с тобой: она поднимает процесс по stdio, сама спрашивает список и кладёт полученные тулы в запрос, который отправляет модели.</p>
+    <p>Отсюда лакмус, для которого не нужно лезть в конфиг: <b>работает ли инструмент с телефона</b>. Документация делит коннекторы ровно по этой линии — remote «available everywhere — web, mobile, Cowork, Desktop, and Claude Code», локальные desktop extensions «only available in Claude Desktop and Claude Code — not on web or mobile». Причина физическая, а не продуктовая: телефон до процесса на твоём маке не дотянется. Значит: видно с телефона — клиент у Anthropic; видно только в Desktop и Code — клиент на твоей машине.</p>
+
+    <h3>Карта: откуда в сессии берутся тулы</h3>
+    <p>Источник видно по имени — префикс тут не косметика, а адрес.</p>
+  </div>
+
+  <table class="mini">
+    <colgroup><col style="width:20%"><col style="width:26%"><col style="width:21%"><col style="width:33%"></colgroup>
+    <thead>
+      <tr><th>Источник</th><th>Как отличить по имени</th><th>Кто держит соединение</th><th>Что это в этой сессии</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="feature">Встроен в клиент</td>
+        <td>Префикса нет вообще: <code>Read</code>, <code>Bash</code>, <code>WebFetch</code>, <code>Task</code></td>
+        <td>Соединения нет — тул объявлен и исполняется самим клиентом</td>
+        <td>Файлы, шелл, веб, подзадачи — базовый набор режима, ты его не настраивал</td>
+      </tr>
+      <tr>
+        <td class="feature">Remote MCP — коннекторы claude.ai</td>
+        <td><code>mcp__&lt;сервер&gt;__&lt;тул&gt;</code></td>
+        <td>Сторона Anthropic</td>
+        <td>Attio, Gmail, Google Calendar и Drive, PandaDoc, Zoho Books, monday.com, Read AI</td>
+      </tr>
+      <tr>
+        <td class="feature">Локальный MCP на твоей машине</td>
+        <td>Двойное имя через мост: <code>mcp__remote-devices__&lt;сервер&gt;__&lt;тул&gt;</code></td>
+        <td>Приложение Claude Desktop у тебя</td>
+        <td>Filesystem, Figma, Control Chrome, PDF Tools, iMessages — твои stdio-серверы, проброшенные в облачную сессию</td>
+      </tr>
+      <tr>
+        <td class="feature">Сам мост к устройству</td>
+        <td><code>mcp__remote-devices__</code> — и сразу тул, без имени сервера</td>
+        <td>Приложение Claude Desktop у тебя</td>
+        <td><code>device_bash</code>, <code>device_stage_files</code>, <code>computer_*</code> — это не твой сервер, а инструменты самого моста</td>
+      </tr>
+      <tr>
+        <td class="feature">Расширение браузера</td>
+        <td><code>mcp__claude-in-chrome__</code></td>
+        <td>Расширение в твоём Chrome</td>
+        <td>Навигация, клики, чтение консоли и сетевых запросов</td>
+      </tr>
+      <tr>
+        <td class="feature">Скиллы</td>
+        <td>Не тул вовсе: вызываются через <code>Skill</code>, внутри — папка с инструкциями</td>
+        <td>Никто: это текст, который читает модель</td>
+        <td>docx, pptx, imaga-pm:*, small-business:* — поведение, а не новая возможность</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="prose">
+    <p>Оговорка к первой строке: имя говорит, <b>кто тул объявил</b>, но не говорит, кто исполняет его дальше. В чистом API <code>web_search</code> — server tool; здесь <code>WebSearch</code> объявлен клиентом сессии, а делегирует ли он внутри себя серверному тулу — изнутри сессии не наблюдаемо. Наблюдаемо только объявление.</p>
+
+    <h3>Как модель делает выбор</h3>
+    <p>Короткий ответ: между «клиентским» и «серверным» она не выбирает, потому что <b>этого различия не видит</b>. Модель получает один плоский список — имя, описание, схема входа; к какой стороне тул прикреплён, в списке не написано. Это решено до неё, тем, кто собрал запрос: разработчиками режима, а в Code и Cowork ещё и твоим конфигом. Выбор модели — только внутри того, что ей положили.</p>
+    <p>Выбирает она по совпадению задачи с описанием. Документация формулирует буквально: при <code>tool_choice: auto</code> «Claude determines on each turn whether to call a tool or respond directly. It calls a tool when the request maps to that tool's described capability and the answer isn't already in context». То есть <b>описание тула и есть интерфейс выбора</b>: плохо описанный тул выбирается неправильно, и чинится это текстом описания, а не кодом.</p>
+    <p>Рычагов управления два. Жёсткий — параметр <code>tool_choice</code>: <code>auto</code> (по умолчанию), <code>any</code> (обязана вызвать хоть что-то), <code>tool</code> (вызвать именно этот), <code>none</code> (нельзя ничего). Мягкий — системный промпт; документация прямо советует фразу вроде «Use the tools to investigate before responding», когда модель ленится вызывать.</p>
+    <p>Поэтому когда открыты обе двери — как с <code>curl</code> и <code>web_fetch</code>, — выбирает не архитектура, а формулировки. В этой самой сессии выбор навязан промптом: в инструкциях написано брать веб-контент только через WebFetch и WebSearch и не ходить за ним curl'ом; без этой строчки я мог бы пойти любым путём. А сама механика деления включается уже <b>после</b> выбора и без участия модели: клиентский вызов останавливает ход и передаёт мяч вызывающей стороне, серверный исполняется на месте. Модель об этом не думает — это делает API.</p>
+  </div>
+
+  <h2 class="section">Разрез: Git и GitHub — четыре контура доступа</h2>
+  <div class="lead">Проверено экспериментально 17.07.2026 на приватном репозитории. Поведение платформы может меняться — это снимок на сегодня.</div>
+  <div class="prose">
+    <p>Все различия сводятся к одному вопросу: <b>откуда у контура берётся право на git-операции</b>. Четыре контура — четыре разных ответа.</p>
+  </div>
+
+  <table>
+    <colgroup><col style="width:18%"><col style="width:41%"><col style="width:41%"></colgroup>
+    <thead>
+      <tr>
+        <th></th>
+        <th class="cowork-h"><div class="mode-head"><span class="swatch"></span>Cowork</div></th>
+        <th class="code-h"><div class="mode-head"><span class="swatch"></span>Code</div></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="feature">Локально<span class="hint">кредо-прокси нет; право на git определяется тем, что среда видит из твоих учётных данных</span></td>
+        <td>
+          <p class="gist">Вручную и заново в каждой сессии: Device Flow на месте или принесённый токен.</p>
+          <p style="margin:0 0 8px">Keychain и <code>~/.ssh</code> в VM не пробрасываются — git сам по себе падает (<code>could not read Username</code>). Готовый токен, принесённый извне, работает и здесь — как в облаке, только кредо-прокси на пути нет. А без токена авторизоваться можно на месте, через <b>OAuth Device Flow</b>, — на пользовательском уровне это одна минута: агент показывает короткий код, ты вводишь его на github.com/login/device в своём обычном браузере и жмёшь Authorize — всё. «Device» в названии — не про тебя, а про того, кто просит доступ: поток придуман для устройств без браузера (smart TV, приставка, CLI на сервере), и здесь таким устройством выступает сама песочница — VM без браузера, которой некуда принять обычный OAuth-редирект; твой браузер играет роль «другой машины», где доступ подтверждают. (Технически: песочница запрашивает у GitHub пару кодов — <code>POST /login/device/code</code>, публичный client_id GitHub CLI, scope <code>repo</code>, — поллит эндпоинт и после Authorize получает <code>gho_…</code>-токен; возможно это потому, что сетевой allowlist включает github.com целиком, вместе с login-эндпоинтами.)</p>
+          <p style="margin:0">Два следствия дизайна: полученный токен имеет широкий scope <code>repo</code> — все приватные репо аккаунта (fine-grained этот flow не умеет); и это <b>единственный из четырёх контуров, где настоящий токен оказывается внутри среды</b>. Граница дизайна Anthropic проходит здесь: облако защищено брокером, локальный контур — только сетевым списком.</p>
+        </td>
+        <td>
+          <p class="gist">Ничего не настраиваешь: git работает на твоих ключах с машины.</p>
+          <p style="margin:0">Прямое окружение: git видит SSH-ключ из <code>~/.ssh</code> и HTTPS-креды из keychain — ведёт себя ровно как у тебя в терминале. Брокера нет; страховка — пошаговые подтверждения команд.</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="feature">Облако<span class="hint">оба контура обслуживает один кредо-прокси: настоящие ключи хранятся у него и в песочницу не попадают никогда; в окружении — токен-суррогат <code>GH_TOKEN</code>, который прокси подменяет настоящими кредами только для репозиториев, прикреплённых к сессии; эндпоинты выдачи токенов не форвардятся — добыть ключи изнутри (device flow) невозможно даже с согласия пользователя</span></td>
+        <td>
+          <p class="gist">Штатного пути нет: только принесённый готовый токен (PAT).</p>
+          <p style="margin:0 0 8px">Прикрепить репозиторий к сессии нельзя — такого UI нет, это фича Code. Список прикреплённых пуст → любой авторизованный запрос к своему репо: <code>403 not enabled for this session</code>; настройки GitHub App на это не влияют (installation ≠ session-level access; проверено — «All repositories» не помогает). Проходит: анонимный git с публичными репо; и git-протокол с <b>готовым валидным токеном</b> прокси форвардит как есть — PAT, принесённый извне (хоть прочитанный из смонтированной папки), работает.</p>
+          <p style="margin:0">Отдельная история — git в подключённой папке Mac. Мост — только канал; поверх него три сервиса: копирование файлов, листинг и удалённое исполнение команд в локальной Linux-VM на Mac с прямым маунтом папок. У этой VM нет выхода в сеть (CONNECT → 403; минимальные привилегии): у облака сеть без файлов, у VM файлы без сети. Поэтому git в папке — только офлайн: status, diff, commit, merge — да; pull/push — нет; обмен коммитами с папкой — только bundle-файлами (рецепт в «Практике»). Удалять файлы мост тоже не умеет (<code>rm → Operation not permitted</code>, вместо удаления — перемещение), так что git-локи вроде <code>.git/index.lock</code> из сессии не вычистить.</p>
+        </td>
+        <td>
+          <p class="gist">Из коробки: выбрал репозиторий при старте сессии — дальше всё работает само.</p>
+          <p style="margin:0">Репозиторий прикрепляется к сессии при создании — выбором из списка, который даёт установка GitHub App; скоуп двухступенчатый: «потолок» установки → конкретное репо этой сессии. Для прикреплённого репо прокси подменяет суррогат настоящими кредами → полноценные clone/pull/push. Push ограничен текущей рабочей веткой. Установка App на конкретные репо дополнительно нужна только для Auto-fix (вебхуки PR).</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="prose">
+    <p><b>Практика: если пользоваться git из песочниц.</b> <span style="color:var(--muted)">Это уже рекомендации, а не дизайн Anthropic — выше были факты, здесь выводы из них.</span></p>
+    <ul class="recipes">
+      <li>Облачная сессия, коммиты нужно доставить на Mac → <code>git bundle create</code> в облаке, файл через мост, на Mac — <code>git fetch файл.bundle</code> + merge (сеть не нужна). Застрявшие git-локи чистить в терминале Mac — мост этого не может.</li>
+      <li>Локальная сессия, разовый pull/push → device flow (~1 минута; поллинг статуса — порциями, потому что одна bash-команда в песочнице живёт ~45 секунд). Токен подставлять через credential-хелпер, не записывая в конфиг и не светя в командной строке (иначе виден в <code>ps</code>):
+      <pre>git -c credential.helper='!f() { echo username=x-access-token; echo "password=$(cat /tmp/t)"; }; f' pull</pre>
+      После операции токен удалить; полный отзыв: GitHub → Settings → Applications → Authorized OAuth Apps → GitHub CLI.</li>
+      <li>Постоянный доступ из любых сессий → fine-grained PAT (один репозиторий, Contents: Read/Write, помнить о сроке действия) в файле рядом с репо:
+      <pre>git config credential.helper 'store --file .git/gh-credentials'</pre>
+      Файл не коммитится и живёт на Mac; читается любой сессией, которой подключена папка, включая облачные через мост — это одновременно удобство (закрывает и облачный кейс) и риск (токен на диске открытым текстом).</li>
+    </ul>
+  </div>
+
+  <h2 class="section">Разрез: Chat-артефакт как мини-приложение — хранилище window.storage</h2>
+  <div class="lead">Выжимка из практической проверки, июль 2026. Относится к chat-артефактам claude.ai.</div>
+  <div class="prose">
+    <p>У chat-артефактов есть облачное key-value хранилище на серверах Anthropic: данные переживают вкладку и сессию чата и живут вместе с артефактом. Доступ — через <code>window.storage</code>, JS-API, который платформа внедряет в песочницу артефакта. Это не стандартный браузерный API и не публичный REST — снаружи, из curl или другого приложения, до хранилища не дотянуться.</p>
+    <pre>await window.storage.set('key', JSON.stringify(data), shared); // запись
+const res = await window.storage.get('key', shared);           // {key, value, shared}
+await window.storage.delete('key', shared);
+await window.storage.list('prefix:', shared);                  // ключи по префиксу</pre>
+    <p>Модель данных: значения — строки (обычно JSON), до ~5 МБ на ключ и ~20 МБ на артефакт; ключи короче 200 символов, без пробелов, слэшей и кавычек. Два скоупа: <code>shared: false</code> — personal, видит только текущий пользователь; <code>shared: true</code> — общие для всех, кто открыл артефакт. <code>get</code> несуществующего ключа бросает ошибку — вызовы оборачивать в try/catch. Конкурентные записи — last-write-wins, синхронизация между устройствами — поллингом. Это KV, а не SQL: ни запросов, ни джойнов, ни транзакций — «выборку» делает клиентский JS после загрузки значения, поэтому связанные данные кладут одним JSON-объектом под один ключ, а не россыпью ключей.</p>
+    <p>Жёсткие границы. Работает только у <b>опубликованных</b> артефактов — до Publish записи не проходят, в коде нужен фолбэк на память. Namespace намертво привязан к artifact_id: два артефакта не могут читать одну базу ни при каких условиях — общий стейт «веб + мобайл» делается как два интерфейса внутри одного артефакта. Unpublish безвозвратно удаляет все данные, экспорта нет. <code>localStorage</code>/<code>sessionStorage</code> в артефактах не работают — <code>window.storage</code> их замена. Доступно на платных планах. Сеть из артефакта закрыта CSP: разрешены только cdnjs (библиотеки), api.anthropic.com (AI- и MCP-вызовы) и само хранилище — внешнюю БД типа Supabase из артефакта не позвать.</p>
+    <p>Зачем так спроектировано. Во-первых, артефакт из одноразового демо становится stateful мини-приложением — трекером, журналом, лидербордом — без внешнего бэкенда и деплоя: Publish разворачивает приложение вместе с данными в один клик. Во-вторых, безопасность по принципу deny by default: артефакт — недоверенный код (написан ИИ, открывается посторонними по ссылке), свободная сеть позволила бы сливать данные посетителей — поэтому песочница режет всё, а платформа открывает несколько контролируемых «калиток»: авторизованных, соскоупленных на конкретный артефакт, залимитированных. Модель как у мини-приложений Telegram/WeChat: не «интернет», а SDK-мостики к сервисам платформы. В-третьих, простая модель владения: база живёт и умирает вместе с артефактом — никаких повисших межартефактных связей.</p>
+    <p><b>Вывод для архитектуры:</b> один артефакт = одна база. Несколько клиентов на общие данные — либо несколько интерфейсов внутри одного артефакта (личное — в personal, коллективное — в shared), либо настоящий бэкенд с внешней БД за пределами платформы артефактов.</p>
+  </div>
+
+  <h2 class="section">Зачем песочница — и почему в Cowork она несъёмная</h2>
+  <div class="prose">
+    <p><b>Фундамент: ограничение ущерба.</b> Cowork по природе жуёт недоверенный контент — письма, PDF из интернета, веб-страницы, вложения. В любом документе может сидеть prompt-инъекция («забудь инструкции, сделай X»), и агент со свободным шеллом без стенок превращает одну отравленную PDF-ку в доступ ко всей машине: кейчейн, куки, SSH-ключи, все файлы. Стенки песочницы сужают возможный ущерб до подключённых папок. Это фундамент — всё остальное строится на нём. (Изоляция режет только файловый риск; риск коннекторов — действий во внешних сервисах от твоего имени — режется отдельно: выбором подключений и подтверждениями.)</p>
+  </div>
+
+  <div class="modecard">
+    <h3>1 · Предсказуемость</h3>
+    <p>Состав среды известен заранее и одинаков у всех: Ubuntu, LibreOffice, pandoc, python-docx/openpyxl, ffmpeg, шрифты с кириллицей. Скилл xlsx работает у бухгалтера ровно так же, как у разработчика, — не потому что у обоих «правильно настроен компьютер», а потому что среду собрала Anthropic. Класс проблем «у меня не работает» почти исчезает.</p>
+  </div>
+  <div class="modecard">
+    <h3>2 · Воспроизводимость</h3>
+    <p>Каждая сессия стартует из чистого образа — накопленной грязи и дрейфа состояния не существует. Результат зависит только от входов и объявленных зависимостей, а не от истории конкретной машины. Классическое «works on my machine» умирает по построению: нет «my machine».</p>
+  </div>
+  <div class="modecard">
+    <h3>3 · Автономность</h3>
+    <p>Раз ущерб ограничен стенками, агента можно отпустить: длинные сессии без подтверждения каждого шага, работа при закрытом ноутбуке, задачи по расписанию. Это продуктовая цель Cowork («дал задачу и ушёл» — для любого пользователя, не только эксперта), и она <i>куплена</i> фундаментом. Code устроен зеркально: полный доступ к реальному окружению — в обмен на пошаговый контроль эксперта, который видит каждый push.</p>
+  </div>
+
+  <div class="prose">
+    <p><b>Уточнение причинности.</b> Предсказуемость и воспроизводимость — строго говоря, свойства не изоляции, а заранее собранного образа; песочница даёт их «бесплатно», потому что образ и стенки приходят одним пакетом. А вот автономность без ограничения ущерба невозможна в принципе. Цепочка: containment → автономность; предсказуемость и воспроизводимость — попутные инженерные плоды.</p>
+    <p><b>Секрет в недоверенной среде считается скомпрометированным.</b> Отсюда кредо-прокси: настоящие ключи хранит брокер, песочницам выдаются короткоживущие суррогаты, привязанные к паре «сессия → репозиторий». Скоуп двухступенчатый: установка GitHub App задаёт потолок («с этими репозиториями Anthropic вообще может работать»), выбор при создании сессии — конкретное репо этой сессии. Агент не контролирует ни одну из ступеней: даже уговорённый инъекцией, он упрётся в прокси. Паттерн индустриальный — credential broker / token exchange (OIDC в CI, AWS STS): встретится ещё не раз.</p>
+  </div>
+
+  <h2 class="section">Песочница как дисциплина: зачем работать так по умолчанию</h2>
+  <div class="prose">
+    <p>Локальная машина полна <i>неявного</i> знания: пакеты, когда-то поставленные, переменные, где-то прописанные, токены в кейчейне. Работа «просто работает» — пока не сломается или пока её не нужно передать. Песочница эфемерна и пуста, поэтому она заставляет всё неявное сделать явным: зависимости — в setup-скрипт, MCP-серверы — в <code>.mcp.json</code>, процедуры — в <code>.claude/</code>, секреты — в выданные скоупы, ценные результаты — наружу (в репо, в чат, на диск), потому что среда умрёт вместе с сессией.</p>
+    <p>Побочный эффект дисциплины: работа перестаёт жить в состоянии конкретного компьютера и начинает жить в декларациях. Её может поднять коллега, новая сессия, агент по расписанию, ты сам через год. Это тот же сдвиг, который индустрия прошла путём «works on my machine» → CI → dev containers → инфраструктура-как-код: <b>среда — это код</b>. Практическое правило: облачная песочница по умолчанию для всего автономного и фонового; локально — когда нужна тесная петля или инструменты твоей машины.</p>
+  </div>
+
+  <div class="updated">Обновлено 17.07.2026 · таблица — по материалам support.claude.com и code.claude.com/docs; раздел про Git — по результатам экспериментов в сессиях Cowork/Code</div>
+</div>
+</body>
+</html>

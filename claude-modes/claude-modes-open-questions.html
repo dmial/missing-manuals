@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Открытые вопросы — Claude Desktop: режимы</title>
+<style>
+  :root{
+    --bg:#faf9f7; --card:#ffffff; --ink:#1a1a1a; --muted:#6b6b6b;
+    --line:#e8e5e0; --line-strong:#d5d0c8; --accent:#8a5a2b;
+    --open-bg:#fdf3e4; --open-ink:#9a6215;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#191817; --card:#211f1e; --ink:#e8e6e3; --muted:#9a968f;
+      --line:#33302d; --line-strong:#453f3a; --accent:#d9a05e;
+      --open-bg:#3a2f1c; --open-ink:#e0b56a;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:36px 20px 60px;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 6px}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 26px}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:18px 20px;margin:0 0 14px}
+  .q .head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+  .num{font-weight:700;color:var(--accent);font-size:15px;flex:none}
+  .status{margin-left:auto;flex:none;font-size:11px;font-weight:600;letter-spacing:.4px;
+    text-transform:uppercase;background:var(--open-bg);color:var(--open-ink);
+    padding:2px 9px;border-radius:99px}
+  .q .text{margin:0;font-size:15.5px}
+  .q .answer{margin:12px 0 0;padding-top:10px;border-top:1px dashed var(--line-strong);
+    color:var(--muted);font-size:13.5px;font-style:italic}
+  code{background:color-mix(in srgb,var(--line) 50%,transparent);padding:1px 5px;
+    border-radius:4px;font-size:.92em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Открытые вопросы</h1>
+  <p class="sub">Claude Desktop: режимы и окружения · копим здесь, разбираем по одному, ответы вписываем сюда же · добавлено 21.07.2026</p>
+
+  <div class="q">
+    <div class="head"><span class="num">1</span><span class="status">Открыт</span></div>
+    <p class="text">Могу ли я работать из Cowork&nbsp;+&nbsp;облака в personal&nbsp;OS? Все изменения будут на диске, так?</p>
+    <p class="answer">Ответ будет здесь.</p>
+  </div>
+
+  <div class="q">
+    <div class="head"><span class="num">2</span><span class="status">Открыт</span></div>
+    <p class="text">Можно ли относиться к Cowork как к локальной работе без git — а git догонять из терминала? Просто предпочитая Cowork из-за UI.</p>
+    <p class="answer">Ответ будет здесь.</p>
+  </div>
+
+  <div class="q">
+    <div class="head"><span class="num">3</span><span class="status">Открыт</span></div>
+    <p class="text">Могу ли я добавить к MCP Attio свой скилл (объясняющий стадии)? Откуда он будет доступен и как его добавить?</p>
+    <p class="answer">Ответ будет здесь.</p>
+  </div>
+
+  <div class="q">
+    <div class="head"><span class="num">4</span><span class="status">Открыт</span></div>
+    <p class="text">Можно ли сделать приложение-inbox и работать в нём — вместо Gmail?</p>
+    <p class="answer">Ответ будет здесь.</p>
+  </div>
+
+  <div class="q">
+    <div class="head"><span class="num">5</span><span class="status">Открыт</span></div>
+    <p class="text"><code>window.storage</code> — облачное KV Anthropic — почему работает только в Chat-режиме?</p>
+    <p class="answer">Ответ будет здесь.</p>
+  </div>
+
+  <div class="q">
+    <div class="head"><span class="num">6</span><span class="status">Открыт</span></div>
+    <p class="text">Верно ли про git в облачном Code: под сессию создаётся новая ветка, после любого изменения в неё идёт коммит и пуш на origin — без дополнительных запросов, — и в конце работы обязательно не забыть сделать мердж? Локально забыть трудно: незавершённое лежит в рабочей директории перед глазами. А тут ветка висит на origin — и её можно забыть замерджить.</p>
+    <p class="answer">Ответ будет здесь.</p>
+  </div>
+
+  <div class="q">
+    <div class="head"><span class="num">7</span><span class="status">Открыт</span></div>
+    <p class="text">Верно ли, что разницу между режимами Code и Cowork (в облаке) можно провести и объяснить не только на примере git и подобных утилит, но и на примере доступа к утилите <code>security</code> — той, что помогает лезть в Keychain?</p>
+    <p class="answer">Ответ будет здесь.</p>
+  </div>
+
+  <div class="q">
+    <div class="head"><span class="num">8</span><span class="status">Открыт</span></div>
+    <p class="text">Что если моим дефолтовым режимом на все случаи жизни всегда будет Cowork, а не Chat? Даже когда я не собираюсь использовать никакую папку — просто на всякий случай.</p>
+    <p class="answer">Ответ будет здесь.</p>
+  </div>
+
+  <div class="q">
+    <div class="head"><span class="num">9</span><span class="status">Открыт</span></div>
+    <p class="text">Есть ли вообще выгода работать в Cowork — или Code безусловно лучше всегда? И если выгода есть, собрать бы список кейсов на каждый режим: таких, которые лучше запускать только в нём.</p>
+    <p class="answer">Ответ будет здесь.</p>
+  </div>
+</div>
+</body>
+</html>
