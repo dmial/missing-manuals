@@ -83,8 +83,23 @@
   .chip.cowork{ color: var(--cowork); }
   .chip.code  { color: var(--code); }
   .chip.s2 { border-color: currentColor; background: color-mix(in srgb, currentColor 12%, transparent); }
-  .chip.s1 { border-style: dashed; border-color: currentColor; opacity: .85; }
-  .chip.s0 { opacity: .35; }
+  .chip.s1 { border-style: dashed; border-color: currentColor; }
+  .chip.chat.s0  { color: color-mix(in srgb, var(--chat) 40%, transparent); }
+  .chip.cowork.s0{ color: color-mix(in srgb, var(--cowork) 40%, transparent); }
+  .chip.code.s0  { color: color-mix(in srgb, var(--code) 40%, transparent); }
+
+  /* Чипы в заголовках колонок + всплывашки */
+  .hdr-chips { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
+  .hdr-chips .htag { flex: none; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--muted); background: var(--badge-bg); border-radius: 4px; padding: 2px 6px; }
+  .chip { position: relative; }
+  .chip:has(.tip) { cursor: help; }
+  .chip .tip { display: none; position: absolute; left: 0; top: calc(100% + 7px); width: 300px;
+    background: var(--card); color: var(--ink); border: 1px solid var(--line-strong); border-radius: 9px;
+    padding: 9px 11px; font-size: 11.5px; font-weight: 400; line-height: 1.5; letter-spacing: normal;
+    z-index: 20; box-shadow: 0 6px 20px rgba(0,0,0,.14); }
+  .chip:hover .tip { display: block; }
+  .files-h .chip .tip { left: auto; right: 0; }
   .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 10px; }
   .legend .chip { font-size: 10px; }
 
@@ -97,9 +112,33 @@
   .compare .minus { color: var(--muted); }
   @media (max-width: 700px) { .compare { grid-template-columns: 1fr; } }
 </style>
+<style>
+  /* Оглавление серии */
+  .mm-toc { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-size: 12.5px;
+    color: var(--muted); background: var(--card); border: 1px solid var(--line-strong);
+    border-radius: 8px; padding: 8px 13px; margin: 0 0 22px; }
+  .mm-toc .lbl { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 10px; }
+  .mm-toc a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--line-strong); }
+  .mm-toc a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .mm-toc .cur { color: var(--ink); font-weight: 700; }
+  .mm-toc .sep { color: var(--line-strong); }
+</style>
 </head>
 <body>
 <div class="wrap">
+  <nav class="mm-toc">
+    <span class="lbl">Серия «Режимы Claude»</span>
+    <span class="sep">·</span>
+    <span class="cur">1 · Карта внедрения</span>
+    <span class="sep">→</span>
+    <span>2 · <a href="claude-modes-mode-choice.html">Выбор режима</a></span>
+    <span class="sep">→</span>
+    <span>3 · <a href="claude-modes-delivery.html">Доставка оснастки</a></span>
+    <span class="sep">→</span>
+    <span>4 · <a href="claude-modes-table.html">Справочник режимов</a></span>
+    <span class="sep">→</span>
+    <span>5 · <a href="claude-modes-open-questions.html">Открытые вопросы</a></span>
+  </nav>
   <h1>Claude Desktop в компании: карта внедрения</h1>
   <div class="sub">Часть 1 · для внедренца: как устроить работу людей и агентов с общими знаниями</div>
   <span class="draft">Черновик · вычитываем матрицу</span>
@@ -119,10 +158,27 @@
         <th class="api-h">
           Знания за API
           <span class="common"><b>Компания не меняет ничего: агент добавляется поверх привычных сервисов — но остаётся в них гостем.</b> Ему поручают отдельные операции («найди», «создай», «допиши»), а не работу над корпусом целиком. Механика: SaaS-системы (Notion, Confluence, Drive, Linear) через коннекторы; доступ дозирован окошком запросов — нет grep, bulk-обхода и локальной среды; порог входа для людей нулевой; результаты падают в SaaS.</span>
+          <div class="hdr-chips">
+            <span class="chip chat s2">Chat<span class="tip">В полную силу: SaaS-поручения — родной жанр Chat. Корпус за коннекторами, окошка запросов достаточно; файловая среда не нужна. Скиллы плагинов работают и здесь — не доезжают только хуки и суб-агенты.</span></span>
+            <span class="chip cowork s1">Cowork<span class="tip">С оговорками: коннекторы, плагины и автономные сессии работают полноценно, но главная сила Cowork — файловая среда — в SaaS-конфигурации простаивает.</span></span>
+            <span class="chip code s1">Code<span class="tip">С оговорками: удалённые коннекторы claude.ai Code подхватывает сам — локально при логине в аккаунт, в облачной сессии выбором при старте; свои MCP-серверы и плагины приходят его каналами — <code>.mcp.json</code> и CLI-маркетплейсы (<code>enabledPlugins</code>). Работает, но SaaS-поручения — не его профиль.</span></span>
+          </div>
         </th>
         <th class="files-h">
           Знания в файлах
-          <span class="common"><b>Снимается потолок делегирования: корпус — рабочая среда агента, и поручать можно работу любого масштаба, вплоть до всего корпуса сразу</b> («найди противоречия во всех договорах», «перелинкуй базу целиком»). Механика: агент читает и пишет файлы напрямую — grep, массовые операции, скрипты, связность как среда; нужен носитель у каждого (папка или клон); согласование копий — файл-синком или git (сравнение под матрицей); результаты ложатся на место в корпус.</span>
+          <span class="common"><b>Снимается потолок делегирования: корпус — рабочая среда агента, и поручать можно работу любого масштаба, вплоть до всего корпуса сразу</b> («найди противоречия во всех договорах», «перелинкуй базу целиком»). Механика: агент читает и пишет файлы напрямую — grep, массовые операции, скрипты, связность как среда; нужен носитель у каждого (папка или клон); согласование копий — файл-синком или git (сравнение под матрицей); результаты ложатся на место в корпус. Просто локальную папку без синхронизации колонка не рассматривает: во всех её клетках корпус разделён — как минимум между твоими устройствами, дальше между людьми.</span>
+          <div class="hdr-chips">
+            <span class="htag">файл-синк</span>
+            <span class="chip chat s0">Chat<span class="tip">Не для этой конфигурации: файловой среды у Chat нет. К той же папке он дотянется разве что коннектором её сервиса (Drive и т. п.) — а это уже механика колонки «за API».</span></span>
+            <span class="chip cowork s2">Cowork<span class="tip">В полную силу: подключённая папка — родная стихия Cowork. Корпус — рабочая поверхность агента: grep, массовые операции, результаты ложатся на место.</span></span>
+            <span class="chip code s1">Code<span class="tip">С оговорками: синкованная папка для Code — обычная папка, работать можно (процедуры возьмёт из <code>.claude/skills</code> в ней же). Но без git нет истории смысла и отката корпуса целиком — у синка лишь версии отдельных файлов; облачным сессиям Code папка недоступна, а параллельные правки грозят синк-конфликтами.</span></span>
+          </div>
+          <div class="hdr-chips">
+            <span class="htag">git</span>
+            <span class="chip chat s0">Chat<span class="tip">Не для этой конфигурации: у Chat нет ни файловой среды, ни git — клон для него не существует.</span></span>
+            <span class="chip cowork s1">Cowork<span class="tip">С оговорками: файлы клона — стихия Cowork, но сам git ограничен: локальной VM нужен токен (device flow или PAT), облачной сессии — только принесённый PAT, а git в подключённой папке через мост — офлайн, без pull/push.</span></span>
+            <span class="chip code s2">Code<span class="tip">В полную силу: родная конфигурация Code — клон, ветки, ревью, петля «правка → дифф → коммит» (локально — на твоих ключах, в облаке репозиторий прикрепляется к сессии и push работает из коробки); <code>.claude/skills</code> приезжают с клоном — знания и процедуры одной поставкой.</span></span>
+          </div>
         </th>
       </tr>
     </thead>
@@ -132,45 +188,42 @@
         <td class="cell">
           <div class="life">Личный секретарь поверх сервисов</div>
           <p class="un">Сам подключил коннекторы в Settings → Connectors — и через минуты агент выполняет поручения в твоих сервисах. Самый быстрый старт во всей матрице. Работа агента не оставляет следа в общем корпусе — результаты растворяются по сервисам.</p>
-          <div class="chips"><span class="chip chat s2">Chat</span><span class="chip cowork s2">Cowork</span><span class="chip code s1">Code</span></div>
         </td>
         <td class="cell">
           <div class="life">Личный корпус как рабочая среда</div>
           <div class="sub-opts">
-            <div class="sub-opt"><span class="tag">файл-синк</span><span class="txt">Личная папка (Drive, Dropbox) подключена к Cowork: архив одного человека становится поверхностью, по которой агент ходит свободно.<div class="chips"><span class="chip chat s0">Chat</span><span class="chip cowork s2">Cowork</span><span class="chip code s1">Code</span></div></span></div>
-            <div class="sub-opt"><span class="tag">git</span><span class="txt">Личный волт-репозиторий: к свободе добавляются история и откат; петля «правка → дифф → коммит» в локальном Code.<div class="chips"><span class="chip chat s0">Chat</span><span class="chip cowork s1">Cowork</span><span class="chip code s2">Code</span></div></span></div>
+            <div class="sub-opt"><span class="tag">файл-синк</span><span class="txt">Личная папка (Drive, Dropbox) подключена к Cowork: архив одного человека становится поверхностью, по которой агент ходит свободно. Вклад синка — свобода перехода между устройствами (кросс-девайс): тот же корпус на каждом твоём компьютере, облачная копия заодно служит резервной. С телефона корпус тоже открывается — но лишь как файлы: агентской среды мобильные ОС не дают.</span></div>
+            <div class="sub-opt"><span class="tag">git</span><span class="txt">Личный волт-репозиторий: та же кросс-девайс-свобода, плюс история и откат; петля «правка → дифф → коммит» в локальном Code.</span></div>
           </div>
         </td>
       </tr>
 
       <tr>
-        <td class="rowhead">2 · Команда<span class="hint">практика живёт в договорённости равных: коллеги делятся, каждый подключает сам (pull); стандарт де-факто — держится на согласии и рассыпается с уходом людей</span></td>
+        <td class="rowhead">2 · Команда (pull)<span class="hint">практика живёт в договорённости равных: коллеги делятся, каждый подключает сам (pull); стандарт де-факто — держится на согласии и рассыпается с уходом людей</span></td>
         <td class="cell">
           <div class="life">Общая приёмная</div>
-          <p class="un">Командный плагин из внутреннего маркетплейса даёт всем одни процедуры поверх общих SaaS-пространств. Команда работает одинаково, но корпус агенту не принадлежит: процедуры общие — знания за окошком, и вклад агента в связность корпуса невозможен.</p>
-          <div class="chips"><span class="chip chat s1">Chat</span><span class="chip cowork s2">Cowork</span><span class="chip code s0">Code</span></div>
+          <p class="un">Командный плагин из внутреннего маркетплейса (git-репозиторий с каталогом; каждый добавляет его URL у себя сам) даёт всем одни процедуры поверх общих SaaS-пространств. Команда работает одинаково, но корпус агенту не принадлежит: процедуры общие — знания за окошком, и вклад агента в связность корпуса невозможен. Chat здесь в своей стихии — не доезжают до него только хуки и суб-агенты плагинов; Cowork всё умеет, но его файловая сила простаивает.</p>
         </td>
         <td class="cell">
           <div class="life">Общий корпус команды</div>
           <div class="sub-opts">
-            <div class="sub-opt"><span class="tag">файл-синк</span><span class="txt">Общая папка + плагин с процедурами. Правка любого участника (и его агента) становится общей в момент сохранения — мгновенно, но без истории смысла.<div class="chips"><span class="chip chat s1">Chat</span><span class="chip cowork s2">Cowork</span><span class="chip code s0">Code</span></div></span></div>
-            <div class="sub-opt"><span class="tag">git</span><span class="txt">Воркспейс-репозиторий: контент, CLAUDE.md и <code>.claude/skills</code> едут одним клоном — знания и процедуры в одной поставке. Правка становится общей через коммит и ревью; нетехническим — клон «под ключ», процедуры дублируются плагином. <span class="tag-imaga">Imaga сегодня</span><div class="chips"><span class="chip chat s0">Chat</span><span class="chip cowork s1">Cowork</span><span class="chip code s2">Code</span></div></span></div>
+            <div class="sub-opt"><span class="tag">файл-синк</span><span class="txt">Общая папка + плагин с процедурами (Code вместо плагина возьмёт их файлами — <code>.claude/skills</code> прямо в папке). Правка любого участника (и его агента) становится общей в момент сохранения — мгновенно, но без истории смысла.</span></div>
+            <div class="sub-opt"><span class="tag">git</span><span class="txt">Воркспейс-репозиторий: контент, CLAUDE.md и <code>.claude/skills</code> едут одним клоном — знания и процедуры в одной поставке. Правка становится общей через коммит и ревью; нетехническим — клон «под ключ», процедуры дублируются плагином. <span class="tag-imaga">Imaga сегодня</span></span></div>
           </div>
         </td>
       </tr>
 
       <tr>
-        <td class="rowhead">3 · Организация<span class="hint">практика живёт в инфраструктуре: раздаётся админкой, закреплена политиками и аудитом (push); стандарт де-юре — не зависит от согласия и переживает смену людей</span></td>
+        <td class="rowhead">3 · Организация (push)<span class="hint">практика живёт в инфраструктуре: раздаётся админкой, закреплена политиками и аудитом (push); стандарт де-юре — не зависит от согласия и переживает смену людей</span></td>
         <td class="cell">
           <div class="life">Агентизированный офис на существующем стеке</div>
           <p class="un">Сотрудник получает агента с подключениями «из коробки», не настроив ничего. Самая быстрая раскатка на масштабе и минимальная трансформация процессов — компания агентизируется, не меняя, где живут знания.</p>
-          <div class="chips"><span class="chip chat s2">Chat</span><span class="chip cowork s2">Cowork</span><span class="chip code s1">Code</span></div>
         </td>
         <td class="cell">
           <div class="life">Корпус как институция</div>
           <div class="sub-opts">
-            <div class="sub-opt"><span class="tag">файл-синк</span><span class="txt">Корпоративный Drive/SharePoint: зоны отделов, права режут видимость людям и их агентам одинаково, аудит средствами платформы.<div class="chips"><span class="chip chat s1">Chat</span><span class="chip cowork s2">Cowork</span><span class="chip code s0">Code</span></div></span></div>
-            <div class="sub-opt"><span class="tag">git</span><span class="txt">Docs-as-code на организацию: плагин собирается из <code>.claude/</code> репозитория и раздаётся сверху; максимальная агентность — корпус как среда, история как смысл — ценой инженерной поддержки как постоянной функции.<div class="chips"><span class="chip chat s1">Chat</span><span class="chip cowork s1">Cowork</span><span class="chip code s2">Code</span></div></span></div>
+            <div class="sub-opt"><span class="tag">файл-синк</span><span class="txt">Корпоративный Drive/SharePoint: зоны отделов, права режут видимость людям и их агентам одинаково, аудит средствами платформы.</span></div>
+            <div class="sub-opt"><span class="tag">git</span><span class="txt">Docs-as-code на организацию: плагин собирается из <code>.claude/</code> репозитория и раздаётся сверху; максимальная агентность — корпус как среда, история как смысл — ценой инженерной поддержки как постоянной функции.</span></div>
           </div>
         </td>
       </tr>

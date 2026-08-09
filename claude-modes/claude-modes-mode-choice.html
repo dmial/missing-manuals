@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Выбор режима — Claude Desktop: режимы</title>
+<style>
+  :root {
+    --bg: #faf9f6; --card: #ffffff; --ink: #1a1a17; --muted: #6e6a61;
+    --line: #e6e2d8; --line-strong: #d6d1c4;
+    --chat: #3b6ea5; --cowork: #c2571f; --code: #3e7d54;
+    --badge-bg: #f1eee6; --accent: #8a4baf; --accent-bg: #f3ecf9;
+    --api: #3b6ea5; --api-bg: #eef3f9; --files: #3e7d54; --files-bg: #edf5f0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #191817; --card: #211f1e; --ink: #eae7e0; --muted: #a39e93;
+      --line: #38352f; --line-strong: #4a463d;
+      --chat: #7fa8d4; --cowork: #e08a55; --code: #7cb894;
+      --badge-bg: #2c2a25; --accent: #c39ade; --accent-bg: #32283c;
+      --api: #7fa8d4; --api-bg: #212b36; --files: #7cb894; --files-bg: #22302a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 32px 20px 48px; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 25px; margin: 0 0 4px; letter-spacing: -0.3px; }
+  code { background: var(--badge-bg); border-radius: 4px; padding: 0 4px; font-size: .92em; }
+
+  /* Оглавление серии */
+  .mm-toc { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-size: 12.5px;
+    color: var(--muted); background: var(--card); border: 1px solid var(--line-strong);
+    border-radius: 8px; padding: 8px 13px; margin: 0 0 22px; }
+  .mm-toc .lbl { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 10px; }
+  .mm-toc a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--line-strong); }
+  .mm-toc a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .mm-toc .cur { color: var(--ink); font-weight: 700; }
+  .mm-toc .sep { color: var(--line-strong); }
+
+  /* Таблица выбора */
+  table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--card);
+    border: 1px solid var(--line-strong); border-radius: 12px; overflow: hidden; margin-top: 16px;
+    --s2c: color-mix(in srgb, var(--files) 15%, var(--card));
+    --s1c: color-mix(in srgb, var(--cowork) 11%, var(--card));
+    --s0c: color-mix(in srgb, var(--muted) 10%, var(--card)); }
+  th, td { border-top: 1px solid var(--line); padding: 13px 15px; vertical-align: top; text-align: left; font-size: 13px; }
+  thead th { border-top: none; font-size: 13.5px; }
+  thead tr:nth-child(2) th { border-top: 1px solid var(--line); }
+  thead th.group-h { text-align: center; }
+  thead th .axis { display: block; font-size: 10.5px; font-weight: 400; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+  thead th .note { display: block; font-weight: 400; font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+
+  /* Фон клеток по статусу + градиентный переход к соседней */
+  td.c-s2 { background: var(--s2c); }
+  td.c-s1 { background: var(--s1c); }
+  td.c-s0 { background: var(--s0c); }
+  td.c-s2.to-s1 { background: linear-gradient(90deg, var(--s2c) 55%, var(--s1c)); }
+  td.c-s2.to-s0 { background: linear-gradient(90deg, var(--s2c) 55%, var(--s0c)); }
+  td.c-s1.to-s2 { background: linear-gradient(90deg, var(--s1c) 55%, var(--s2c)); }
+  td.c-s1.to-s0 { background: linear-gradient(90deg, var(--s1c) 55%, var(--s0c)); }
+  td.c-s0.to-s1 { background: linear-gradient(90deg, var(--s0c) 55%, var(--s1c)); }
+  td.c-s0.to-s2 { background: linear-gradient(90deg, var(--s0c) 55%, var(--s2c)); }
+  td.mode { width: 19%; background: color-mix(in srgb, var(--card) 60%, var(--bg)); font-weight: 700; font-size: 14px; }
+  td.mode .hint { display: block; font-weight: 400; font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+  td.mode.chat { color: var(--chat); }
+  td.mode.cowork { color: var(--cowork); }
+  td.mode.code { color: var(--code); }
+  td.mode .hint { color: var(--muted); }
+
+  .st { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; border-radius: 5px; padding: 2px 8px; margin-bottom: 7px; border: 1px solid transparent; }
+  .st2 { color: var(--files); border-color: currentColor; background: color-mix(in srgb, currentColor 12%, transparent); }
+  .st1 { color: var(--cowork); border-style: dashed; border-color: currentColor; }
+  .st0 { color: var(--muted); background: var(--badge-bg); }
+  td p { margin: 0; font-size: 12.5px; }
+
+  /* Пояснения под таблицей */
+  h2 { font-size: 17px; margin: 28px 0 6px; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+  .cards .card { background: var(--card); border: 1px solid var(--line-strong); border-radius: 10px; padding: 12px 14px; }
+  .cards h3 { margin: 0 0 6px; font-size: 13px; }
+  .cards p { margin: 4px 0; font-size: 12.5px; }
+  @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } }
+  .updated { color: var(--muted); font-size: 11.5px; margin-top: 26px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="mm-toc">
+    <span class="lbl">Серия «Режимы Claude»</span>
+    <span class="sep">·</span>
+    <span>1 · <a href="claude-modes-article.html">Карта внедрения</a></span>
+    <span class="sep">→</span>
+    <span class="cur">2 · Выбор режима</span>
+    <span class="sep">→</span>
+    <span>3 · <a href="claude-modes-delivery.html">Доставка оснастки</a></span>
+    <span class="sep">→</span>
+    <span>4 · <a href="claude-modes-table.html">Справочник режимов</a></span>
+    <span class="sep">→</span>
+    <span>5 · <a href="claude-modes-open-questions.html">Открытые вопросы</a></span>
+  </nav>
+
+  <h1>Выбор режима: Chat · Cowork · Code</h1>
+
+  <table>
+    <colgroup><col style="width:19%"><col style="width:27%"><col style="width:27%"><col style="width:27%"></colgroup>
+    <thead>
+      <tr>
+        <th rowspan="2" style="background: color-mix(in srgb, var(--card) 60%, var(--bg))"></th>
+        <th rowspan="2"><span class="axis">Корпус за API</span>SaaS через коннекторы<span class="note">знания в Notion, Confluence, Drive-как-сервисе; доступ — окошко запросов</span></th>
+        <th class="group-h" colspan="2"><span class="axis">Корпус в файлах</span>файлы — рабочая среда агента; различие только в способе согласования копий</th>
+      </tr>
+      <tr>
+        <th>файл-синк<span class="note">общая папка Drive/Dropbox/SharePoint; согласование копий — синком</span></th>
+        <th>git<span class="note">репозиторий; согласование копий — коммитами через ревью</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="mode chat">Chat<span class="hint">диалог с моделью</span></td>
+        <td class="c-s2 to-s0"><span class="st st2">В полную силу</span>
+          <p>SaaS-поручения — родной жанр Chat. Корпус за коннекторами, окошка запросов достаточно; файловая среда не нужна. Скиллы плагинов работают и здесь — не доезжают только хуки и суб-агенты.</p></td>
+        <td class="c-s0"><span class="st st0">Не для этой конфигурации</span>
+          <p>Файловой среды у Chat нет. К той же папке он дотянется разве что коннектором её сервиса (Drive и т. п.) — а это уже механика колонки «за API».</p></td>
+        <td class="c-s0"><span class="st st0">Не для этой конфигурации</span>
+          <p>У Chat нет ни файловой среды, ни git — клон для него не существует.</p></td>
+      </tr>
+      <tr>
+        <td class="mode cowork">Cowork<span class="hint">агент для файлов и задач</span></td>
+        <td class="c-s1 to-s2"><span class="st st1">С оговорками</span>
+          <p>Коннекторы, плагины и автономные сессии работают полноценно, но главная сила Cowork — файловая среда — в SaaS-конфигурации простаивает.</p></td>
+        <td class="c-s2 to-s1"><span class="st st2">В полную силу</span>
+          <p>Подключённая папка — родная стихия Cowork. Корпус — рабочая поверхность агента: grep, массовые операции, результаты ложатся на место.</p></td>
+        <td class="c-s1"><span class="st st1">С оговорками</span>
+          <p>Файлы клона — стихия Cowork, но сам git ограничен: локальной VM нужен токен (device flow или PAT), облачной сессии — только принесённый PAT, а git в подключённой папке через мост — офлайн, без pull/push.</p></td>
+      </tr>
+      <tr>
+        <td class="mode code">Code<span class="hint">агент-разработчик</span></td>
+        <td class="c-s1"><span class="st st1">С оговорками</span>
+          <p>Удалённые коннекторы claude.ai Code подхватывает сам — локально при логине в аккаунт, в облачной сессии выбором при старте; свои MCP-серверы и плагины приходят его каналами — <code>.mcp.json</code> и CLI-маркетплейсы (<code>enabledPlugins</code>). Работает, но SaaS-поручения — не его профиль.</p></td>
+        <td class="c-s1 to-s2"><span class="st st1">С оговорками</span>
+          <p>Синкованная папка для Code — обычная папка, работать можно (процедуры возьмёт из <code>.claude/skills</code> в ней же). Но без git нет истории смысла и отката корпуса целиком — у синка лишь версии отдельных файлов; облачным сессиям Code папка недоступна.</p></td>
+        <td class="c-s2"><span class="st st2">В полную силу</span>
+          <p>Родная конфигурация Code — клон, ветки, ревью, петля «правка → дифф → коммит» (локально — на твоих ключах, в облаке репозиторий прикрепляется к сессии и push работает из коробки); <code>.claude/skills</code> приезжают с клоном — знания и процедуры одной поставкой.</p></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Если сомневаешься</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Проверка от результата</h3>
+      <p>Что должно остаться после работы? Запись в SaaS — Chat; файлы, легшие на место в папке, — Cowork; коммит с объяснением «что и зачем» — Code.</p>
+    </div>
+    <div class="card">
+      <h3>Исполнительский профиль может перебить</h3>
+      <p>Недоверенный контент (письма, чужие PDF) и автономные фоновые задачи тянут в песочницу Cowork; потребность в полном доступе к своей машине с пошаговым контролем — в локальный Code, даже если корпус «не их».</p>
+    </div>
+  </div>
+
+  <div class="updated">Обновлено 09.08.2026 · клетки выверены по «Справочнику режимов» (глава 4) адверсариальной проверкой</div>
+</div>
+</body>
+</html>

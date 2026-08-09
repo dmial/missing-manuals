@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Доставка оснастки — Claude Desktop: режимы</title>
+<style>
+  :root {
+    --bg: #faf9f6; --card: #ffffff; --ink: #1a1a17; --muted: #6e6a61;
+    --line: #e6e2d8; --line-strong: #d6d1c4;
+    --chat: #3b6ea5; --cowork: #c2571f; --code: #3e7d54;
+    --badge-bg: #f1eee6; --accent: #8a4baf; --accent-bg: #f3ecf9;
+    --api: #3b6ea5; --api-bg: #eef3f9; --files: #3e7d54; --files-bg: #edf5f0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #191817; --card: #211f1e; --ink: #eae7e0; --muted: #a39e93;
+      --line: #38352f; --line-strong: #4a463d;
+      --chat: #7fa8d4; --cowork: #e08a55; --code: #7cb894;
+      --badge-bg: #2c2a25; --accent: #c39ade; --accent-bg: #32283c;
+      --api: #7fa8d4; --api-bg: #212b36; --files: #7cb894; --files-bg: #22302a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 32px 20px 48px; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 25px; margin: 0 0 4px; letter-spacing: -0.3px; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+  .prose p { margin: 10px 0; font-size: 14px; max-width: 860px; }
+  .prose a { color: inherit; text-decoration: none; border-bottom: 1px dotted var(--line-strong); }
+  .prose a:hover { border-bottom-color: var(--ink); }
+  code { background: var(--badge-bg); border-radius: 4px; padding: 0 4px; font-size: .92em; }
+
+  /* Оглавление серии */
+  .mm-toc { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-size: 12.5px;
+    color: var(--muted); background: var(--card); border: 1px solid var(--line-strong);
+    border-radius: 8px; padding: 8px 13px; margin: 0 0 22px; }
+  .mm-toc .lbl { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 10px; }
+  .mm-toc a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--line-strong); }
+  .mm-toc a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .mm-toc .cur { color: var(--ink); font-weight: 700; }
+  .mm-toc .sep { color: var(--line-strong); }
+
+  /* Эвристика */
+  .rule { background: var(--card); border: 1px solid var(--line-strong); border-left: 4px solid var(--accent);
+    border-radius: 10px; padding: 12px 16px; margin: 16px 0 6px; font-size: 15px; max-width: 860px; }
+  .rule b { letter-spacing: .01em; }
+
+  /* Таблица каналов */
+  table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--card);
+    border: 1px solid var(--line-strong); border-radius: 12px; overflow: hidden; margin-top: 16px; }
+  th, td { border-top: 1px solid var(--line); padding: 13px 15px; vertical-align: top; text-align: left; font-size: 13px; }
+  thead th { border-top: none; font-size: 13.5px; }
+  thead th.tool-h { background: color-mix(in srgb, var(--badge-bg) 55%, var(--card)); width: 27%; }
+  thead th .axis { display: block; font-size: 10.5px; font-weight: 400; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+  thead th .note { display: block; font-weight: 400; font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+  td.carrier { width: 19%; background: color-mix(in srgb, var(--card) 60%, var(--bg)); font-weight: 700; font-size: 14px; }
+  td.carrier .hint { display: block; font-weight: 400; font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+
+  .life { font-weight: 600; font-size: 13px; margin-bottom: 5px; }
+  td p.un { margin: 5px 0; font-size: 12.5px; }
+  .sub-opt { display: flex; gap: 9px; align-items: flex-start; margin-top: 9px; }
+  .sub-opt .tag { flex: none; min-width: 46px; text-align: center; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .06em; color: var(--code);
+    background: color-mix(in srgb, var(--code) 12%, transparent); border-radius: 4px; padding: 2px 6px; margin-top: 1px; }
+  .sub-opt .txt { font-size: 12.5px; }
+
+  /* Пояснения под таблицей */
+  h2 { font-size: 17px; margin: 28px 0 6px; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 10px; }
+  .cards .card { background: var(--card); border: 1px solid var(--line-strong); border-radius: 10px; padding: 12px 14px; }
+  .cards h3 { margin: 0 0 6px; font-size: 13px; }
+  .cards p { margin: 4px 0; font-size: 12.5px; }
+  @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } }
+  .updated { color: var(--muted); font-size: 11.5px; margin-top: 26px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="mm-toc">
+    <span class="lbl">Серия «Режимы Claude»</span>
+    <span class="sep">·</span>
+    <span>1 · <a href="claude-modes-article.html">Карта внедрения</a></span>
+    <span class="sep">→</span>
+    <span>2 · <a href="claude-modes-mode-choice.html">Выбор режима</a></span>
+    <span class="sep">→</span>
+    <span class="cur">3 · Доставка оснастки</span>
+    <span class="sep">→</span>
+    <span>4 · <a href="claude-modes-table.html">Справочник режимов</a></span>
+    <span class="sep">→</span>
+    <span>5 · <a href="claude-modes-open-questions.html">Открытые вопросы</a></span>
+  </nav>
+
+  <h1>Доставка оснастки: скиллы · плагины · MCP</h1>
+  <div class="sub">Вертикальный разрез: каким каналом оснастка доедет до себя, команды и организации</div>
+
+  <div class="prose">
+    <p>Канал доставки выбирает <b>носитель практики</b>, а не режим: себе оснастку — скиллы, плагины, MCP-серверы и коннекторы — включаешь своими настройками; команде раздаёшь pull-каналами — каждый подключает сам; организация пушит админкой. Вторая ось — где живёт корпус знаний — выбирает режим и на канал не влияет: это глава <a href="claude-modes-mode-choice.html">«Выбор режима»</a>. Одна поправка сквозная: у Code свои каналы — файлы, CLI и собственный UI Code-таба десктопа вместо каталогов чат-приложения, поэтому он оговорён в каждой клетке отдельно.</p>
+  </div>
+  <div class="rule"><b>Себе → свои настройки. Команде → pull: маркетплейс и клон — скиллам Team/Enterprise добавляет штатный шаринг. Организации → push: админка.</b></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="background: color-mix(in srgb, var(--card) 60%, var(--bg))"></th>
+        <th class="tool-h"><span class="axis">Тип оснастки</span>Скиллы<span class="note">папка-инструкция со SKILL.md: поведение агента, не новая возможность</span></th>
+        <th class="tool-h"><span class="axis">Тип оснастки</span>Плагины<span class="note">бандлы оснастки: скиллы, коннекторы, хуки, суб-агенты; распространяются каталогами-маркетплейсами</span></th>
+        <th class="tool-h"><span class="axis">Тип оснастки</span>MCP-серверы и коннекторы<span class="note">новые возможности агента: удалённые коннекторы (OAuth-сервисы) и локальные серверы (процессы на твоей машине)</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="carrier">1 · Соло<span class="hint">включаешь себе: свои настройки, свои файлы</span></td>
+        <td>
+          <div class="life">Customize → Skills — аккаунтный слой</div>
+          <p class="un">Встроенные включаешь галочкой, свои грузишь ZIP-ом. Слой живёт на аккаунте: claude.ai и десктоп — два окна к одному списку; Chat и Cowork читают его одинаково.</p>
+          <div class="sub-opt"><span class="tag">Code</span><span class="txt">Локальный Code аккаунтный слой не читает — скиллы кладутся файлами: <code>~/.claude/skills</code> (личные, на все проекты) или <code>.claude/skills</code> проекта. Облачная сессия Code, наоборот, подгружает скиллы аккаунта автоматически.</span></div>
+        </td>
+        <td>
+          <div class="life">Каталог в приложении: Settings → Plugins</div>
+          <p class="un">Из директории claude.ai плагин ставится на аккаунт. Свой каталог добавляется кнопкой «Add marketplace» — git-репозиторий по URL; самодобавленные каталоги хранятся локально на устройстве.</p>
+          <div class="sub-opt"><span class="tag">Code</span><span class="txt">Каталог приложения Code не читает: маркетплейсы — команда <code>/plugin</code> в CLI, включение — <code>enabledPlugins</code> в личном <code>~/.claude/settings.json</code> (на другую машину и в облако не переносится).</span></div>
+        </td>
+        <td>
+          <div class="life">Settings → Connectors — двумя ярусами</div>
+          <p class="un">Удалённые коннекторы (OAuth) — аккаунтный слой: Chat и Cowork видят их сразу. Локальные серверы прописываются в конфиге десктоп-приложения — их видят десктопный Chat и Cowork.</p>
+          <div class="sub-opt"><span class="tag">Code</span><span class="txt">Удалённые коннекторы аккаунта Code подхватывает сам: локально — при логине, в облачной сессии — выбором при старте. Локальные серверы — своими каналами: <code>.mcp.json</code> проекта или <code>claude mcp add</code> (личный <code>~/.claude.json</code>). Конфиг десктопа читает только Code-таб десктоп-приложения в локальных сессиях; терминальный CLI — нет, но импортирует его серверы командой <code>claude mcp add-from-claude-desktop</code>.</span></div>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="carrier">2 · Команда (pull)<span class="hint">делишься: каждый подключает сам — каталог по URL, клон репозитория</span></td>
+        <td>
+          <div class="life">Штатный шаринг (Team/Enterprise) — или плагин, или файлы в репо</div>
+          <p class="un">На Team/Enterprise скилл шарится штатно: конкретным коллегам или всей организации (тумблеры Skill sharing и Share with organization; у получателя — разделы Shared и Organization skills в Customize → Skills, включает тумблером). На Free/Pro/Max шаринга нет — остаются плагин из общего маркетплейса (клетка справа) и пересылка ZIP-ом: ручная раздача без канала обновлений.</p>
+          <div class="sub-opt"><span class="tag">Code</span><span class="txt">Проектные <code>.claude/skills</code> в репозитории: приезжают с клоном каждому, включая облачные сессии. В общей синк-папке их прочитает только Code — подхват из подключённой папки Cowork не документирован.</span></div>
+        </td>
+        <td>
+          <div class="life">Внутренний маркетплейс: git-репозиторий с каталогом</div>
+          <p class="un">Команда держит каталог плагинов в git-репозитории; каждый добавляет его URL у себя сам («Add marketplace») — pull в чистом виде. Скиллы плагина доедут до Chat и Cowork; хуки и суб-агенты — только до Cowork.</p>
+          <div class="sub-opt"><span class="tag">Code</span><span class="txt">Тот же репозиторий-каталог объявляется в проектном <code>.claude/settings.json</code>: каталог — ключом <code>extraKnownMarketplaces</code>, включение конкретных плагинов — <code>enabledPlugins</code>; оба приезжают с клоном, включая облачные сессии. Личный <code>~/.claude/settings.json</code> остаётся на машине.</span></div>
+        </td>
+        <td>
+          <div class="life">Каждый подключает сам — или коннектор приносит плагин</div>
+          <p class="un">Удалённый коннектор — личное OAuth-подключение: раздать само подключение нельзя. Каналы команды — инструкция «подключи вот это» или командный плагин с коннектором внутри: тогда коннектор приезжает вместе с плагином.</p>
+          <div class="sub-opt"><span class="tag">Code</span><span class="txt"><code>.mcp.json</code> в корне репозитория: версионируется, общий для команды, приезжает с клоном — и локально, и в облачные сессии.</span></div>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="carrier">3 · Организация (push)<span class="hint">раздаёшь админкой: работает без действий получателя, закреплено политиками</span></td>
+        <td>
+          <div class="life">Organization settings → Skills — прямой админ-канал (Team/Enterprise)</div>
+          <p class="un">Владелец загружает скилл ZIP-ом — он появляется у всех участников в Customize → Skills включённым по умолчанию: push без действий сотрудника. Второй канал — плагины внутреннего маркетплейса («installed by default» / «required»), нужный в том числе для раздачи по группам.</p>
+          <div class="sub-opt"><span class="tag">Code</span><span class="txt">Третий уровень файлов скиллов — enterprise: раскладывается на машины средствами организации (managed-развёртывание, MDM).</span></div>
+        </td>
+        <td>
+          <div class="life">Внутренний маркетплейс организации (Team/Enterprise)</div>
+          <p class="un">Админ загружает каталог ZIP-ом или синкает из приватного GitHub-репозитория (публичные запрещены) и назначает каждому плагину режим раздачи: installed by default · available for install · not available · required.</p>
+          <div class="sub-opt"><span class="tag">Code</span><span class="txt">Каталог организации Code не читает — для него остаются CLI-каналы команды; принудительная раздача — управляемыми настройками (managed settings).</span></div>
+        </td>
+        <td>
+          <div class="life">Коннекторы включаются на организацию</div>
+          <p class="un">Админ добавляет удалённый коннектор в админке — он появляется у всех участников организации; OAuth-авторизацию каждый проходит под своим аккаунтом.</p>
+          <div class="sub-opt"><span class="tag">Code</span><span class="txt">Для Code — управляемый файл <code>managed-mcp.json</code>, разложенный на устройства MDM/GPO: раздаёт фиксированный набор серверов и берёт эксклюзивный контроль — коннекторы claude.ai подавляются, пока в managed settings не включён <code>allowAllClaudeAiMcps</code>. Сами managed settings — только allow/deny-фильтр серверов, не канал раздачи.</span></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Три вещи, которые надо держать в голове</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Code стоит особняком</h3>
+      <p>Терминальный Code не читает ни аккаунтный слой скиллов, ни каталог плагинов, ни конфиг десктопа: его каналы — файлы (<code>.claude/</code>, <code>.mcp.json</code>) и CLI. Code-таб десктоп-приложения — исключение по MCP: локальные сессии подхватывают серверы из <code>claude_desktop_config.json</code>, плюс свой UI коннекторов и плагинов. Облачный Code — гибрид: аккаунтные скиллы и коннекторы подгружает, проектные файлы приезжают с клоном, личные (<code>~/.claude/…</code>) остаются на машине.</p>
+    </div>
+    <div class="card">
+      <h3>Плагин — контейнер доставки</h3>
+      <p>Единица раздачи для команды и организации: внутри скиллы, коннекторы, хуки, суб-агенты. До Chat доезжают скиллы и коннекторы; хуки и суб-агенты — только до Cowork. Плагины собственной системы Code (CLI-маркетплейсы) несут полный набор — включая команды и суб-агентов.</p>
+    </div>
+    <div class="card">
+      <h3>Скилл из сессии умирает с ней</h3>
+      <p>Скилл, созданный агентом по ходу работы, — просто папка со SKILL.md. Чтобы пережить сессию, он должен попасть в канал: ZIP-ом в Customize → Skills, файлом в <code>.claude/skills</code>, плагином в маркетплейс.</p>
+    </div>
+  </div>
+
+  <div class="updated">Обновлено 09.08.2026 · каналы выверены адверсариальной проверкой по <a href="claude-modes-table.html" style="color:inherit">«Справочнику режимов»</a> (глава 4), support.claude.com и code.claude.com/docs</div>
+</div>
+</body>
+</html>

@@ -36,9 +36,33 @@
   code{background:color-mix(in srgb,var(--line) 50%,transparent);padding:1px 5px;
     border-radius:4px;font-size:.92em}
 </style>
+<style>
+  /* Оглавление серии */
+  .mm-toc { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-size: 12.5px;
+    color: var(--muted); background: var(--card); border: 1px solid var(--line-strong);
+    border-radius: 8px; padding: 8px 13px; margin: 0 0 22px; }
+  .mm-toc .lbl { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 10px; }
+  .mm-toc a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--line-strong); }
+  .mm-toc a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .mm-toc .cur { color: var(--ink); font-weight: 700; }
+  .mm-toc .sep { color: var(--line-strong); }
+</style>
 </head>
 <body>
 <div class="wrap">
+  <nav class="mm-toc">
+    <span class="lbl">Серия «Режимы Claude»</span>
+    <span class="sep">·</span>
+    <span>1 · <a href="claude-modes-article.html">Карта внедрения</a></span>
+    <span class="sep">→</span>
+    <span>2 · <a href="claude-modes-mode-choice.html">Выбор режима</a></span>
+    <span class="sep">→</span>
+    <span>3 · <a href="claude-modes-delivery.html">Доставка оснастки</a></span>
+    <span class="sep">→</span>
+    <span>4 · <a href="claude-modes-table.html">Справочник режимов</a></span>
+    <span class="sep">→</span>
+    <span class="cur">5 · Открытые вопросы</span>
+  </nav>
   <h1>Открытые вопросы</h1>
   <p class="sub">Claude Desktop: режимы и окружения · копим здесь, разбираем по одному, ответы вписываем сюда же · добавлено 21.07.2026</p>
 
