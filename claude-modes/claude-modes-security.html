@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Контуры безопасности — Claude Desktop: режимы</title>
+<style>
+  :root {
+    --bg: #faf9f6; --card: #ffffff; --ink: #1a1a17; --muted: #6e6a61;
+    --line: #e6e2d8; --line-strong: #d6d1c4;
+    --chat: #3b6ea5; --cowork: #c2571f; --code: #3e7d54;
+    --badge-bg: #f1eee6; --accent: #8a4baf; --accent-bg: #f3ecf9;
+    --no: #a94a3f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #191817; --card: #211f1e; --ink: #eae7e0; --muted: #a39e93;
+      --line: #38352f; --line-strong: #4a463d;
+      --chat: #7fa8d4; --cowork: #e08a55; --code: #7cb894;
+      --badge-bg: #2c2a25; --accent: #c39ade; --accent-bg: #32283c;
+      --no: #d98a7f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 32px 20px 48px; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  .wrap { max-width: 1280px; margin: 0 auto; }
+  h1 { font-size: 25px; margin: 0 0 4px; letter-spacing: -0.3px; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+  .prose p { margin: 10px 0; font-size: 14px; max-width: 900px; }
+  code { background: var(--badge-bg); border-radius: 4px; padding: 0 4px; font-size: .92em; }
+
+  /* Оглавление серии */
+  .mm-toc { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-size: 12.5px;
+    color: var(--muted); background: var(--card); border: 1px solid var(--line-strong);
+    border-radius: 8px; padding: 8px 13px; margin: 0 0 22px; }
+  .mm-toc .lbl { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 10px; }
+  .mm-toc a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--line-strong); }
+  .mm-toc a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .mm-toc .cur { color: var(--ink); font-weight: 700; }
+  .mm-toc .sep { color: var(--line-strong); }
+
+  /* Эвристика */
+  .rule { background: var(--card); border: 1px solid var(--line-strong); border-left: 4px solid var(--accent);
+    border-radius: 10px; padding: 12px 16px; margin: 16px 0 6px; font-size: 15px; max-width: 900px; }
+  .rule b { letter-spacing: .01em; }
+
+  /* Таблица контуров */
+  table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--card);
+    border: 1px solid var(--line-strong); border-radius: 12px; overflow: hidden; margin-top: 16px; }
+  th, td { border-top: 1px solid var(--line); padding: 12px 14px; vertical-align: top; text-align: left; font-size: 12.5px; }
+  thead th { border-top: none; font-size: 13px; background: color-mix(in srgb, var(--badge-bg) 55%, var(--card)); }
+  thead th .axis { display: block; font-size: 10.5px; font-weight: 400; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+  thead th .note { display: block; font-weight: 400; font-size: 11px; color: var(--muted); margin-top: 4px; }
+  td.contour { background: color-mix(in srgb, var(--card) 60%, var(--bg)); font-weight: 700; font-size: 13.5px; }
+  td.contour .hint { display: block; font-weight: 400; font-size: 11px; color: var(--muted); margin-top: 4px; }
+  td.contour.chat { color: var(--chat); }
+  td.contour.cowork { color: var(--cowork); }
+  td.contour.code { color: var(--code); }
+  td.contour .hint { color: var(--muted); }
+  td p { margin: 0 0 6px; }
+  td p:last-child { margin-bottom: 0; }
+  td b { font-weight: 650; }
+  .worst { border-left: 2px solid color-mix(in srgb, var(--no) 45%, transparent); }
+
+  /* Карточки-эвристики */
+  h2 { font-size: 17px; margin: 28px 0 6px; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 10px; }
+  .cards .card { background: var(--card); border: 1px solid var(--line-strong); border-radius: 10px; padding: 12px 14px; }
+  .cards h3 { margin: 0 0 6px; font-size: 13px; }
+  .cards p { margin: 4px 0; font-size: 12.5px; }
+  @media (max-width: 900px) { .cards { grid-template-columns: 1fr; } }
+  .updated { color: var(--muted); font-size: 11.5px; margin-top: 26px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="mm-toc">
+    <span class="lbl">Серия «Режимы Claude»</span>
+    <span class="sep">·</span>
+    <span>1 · <a href="claude-modes-article.html">Карта внедрения</a></span>
+    <span class="sep">→</span>
+    <span>2 · <a href="claude-modes-mode-choice.html">Выбор режима</a></span>
+    <span class="sep">→</span>
+    <span>3 · <a href="claude-modes-delivery.html">Доставка оснастки</a></span>
+    <span class="sep">→</span>
+    <span class="cur">4 · Контуры безопасности</span>
+    <span class="sep">→</span>
+    <span>5 · <a href="claude-modes-table.html">Справочник режимов</a></span>
+    <span class="sep">→</span>
+    <span>6 · <a href="claude-modes-open-questions.html">Открытые вопросы</a></span>
+  </nav>
+
+  <h1>Контуры безопасности: пять сред исполнения</h1>
+  <div class="sub">Какой контент можно скармливать агенту — и что он в худшем случае сломает или сольёт</div>
+
+  <div class="prose">
+    <p>Режимов три, а контуров безопасности пять: у Cowork и Code локальный и облачный варианты — разные среды, от прямого окружения без стенок до VM у Anthropic, поэтому вопросы «что можно скармливать» и «что агент в худшем случае сломает» решаются на уровне контура, а не режима. Опасность, от которой строятся стенки, — prompt-инъекция: текст в чужом документе, который агент принимает за инструкцию («забудь правила, сделай X»); нести её может любое письмо, PDF или веб-страница. Таблица показывает, что каждый контур видит из твоего — файлы, сеть, креды — и что достаётся инъекции, если агент уговорён.</p>
+    <p>Сквозная оговорка: стенки режут только файловый риск. Риск коннекторов — действий во внешних сервисах от твоего имени — от стенок контура не зависит и режется отдельно: выбором подключений и подтверждениями действий.</p>
+  </div>
+  <div class="rule"><b>Недоверенный контент → только за стенки. Секреты → как можно дальше от среды. Автономность → только там, где ущерб ограничен заранее.</b></div>
+
+  <table>
+    <colgroup><col style="width:13%"><col style="width:17.4%"><col style="width:17.4%"><col style="width:17.4%"><col style="width:17.4%"><col style="width:17.4%"></colgroup>
+    <thead>
+      <tr>
+        <th style="background: color-mix(in srgb, var(--card) 60%, var(--bg))"></th>
+        <th><span class="axis">Разрез</span>Изоляция и стенки<span class="note">где крутится агентный цикл и что вокруг него</span></th>
+        <th><span class="axis">Разрез</span>Доступ к файлам<span class="note">что среда видит из твоего диска</span></th>
+        <th><span class="axis">Разрез</span>Сеть<span class="note">чья сеть и какие ограничения</span></th>
+        <th><span class="axis">Разрез</span>Секреты и креды<span class="note">что из настоящих ключей оказывается внутри среды</span></th>
+        <th><span class="axis">Разрез</span>Худший ущерб<span class="note">что достаётся инъекции, если агент уговорён</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="contour chat">Chat<span class="hint">веб-бэкенд claude.ai · только облако</span></td>
+        <td><p>Рабочей среды нет: диалог крутится в веб-бэкенде claude.ai, инструменты — вызовы сервисов (server tools). Под действие — выполнить код, собрать файл — бэкенд заказывает контейнер как услугу; тот эпизодичен: ~5 минут простоя — заморозка, предел 30 дней (цифры из API-документации этого же механизма). Исключение: локальные MCP-серверы исполняет десктоп-приложение на твоей машине.</p></td>
+        <td><p>Диска не видит: только вложения, загруженные в чат; результаты — файлами в чат. Локальный MCP-сервер, прописанный в десктопе, может открыть файлы — но исполняет его приложение, и это твой явный выбор, а не свойство среды.</p></td>
+        <td><p>Веб — server tools: поиск и загрузка страниц уходят с серверов Anthropic. Твоих кук у них нет, интранет и localhost недосягаемы.</p></td>
+        <td><p>В среде ничего твоего: OAuth-токены коннекторов держит инфраструктура Anthropic — вызовы идут от твоего имени, но ключей агент не видит.</p></td>
+        <td class="worst"><p>Содержимое диалога и подключённые сервисы: инъекция может дёргать коннекторы от твоего имени — читать почту, писать в CRM, слить прочитанное. Машина и файлы вне чата недосягаемы — пока ты сам не прописал в десктопе локальные MCP-серверы: через них инъекции достаётся то, что эти серверы открывают (файлы, браузер).</p></td>
+      </tr>
+
+      <tr>
+        <td class="contour cowork">Cowork · локально<span class="hint">цикл на машине, код в VM</span></td>
+        <td><p>Две среды на твоей машине: агентный цикл — нативно на устройстве, исполнение кода — в VM под гипервизором платформы (Apple Virtualization.framework, Hyper-V). Стенки вокруг кода, а не вокруг всего агента.</p></td>
+        <td><p>Подключённые папки — напрямую, запись сразу на диск, без стадии «применить». Остальная машина за стенками: keychain и <code>~/.ssh</code> в VM не пробрасываются.</p></td>
+        <td><p>Двумя путями: веб-запросы агентного цикла (web fetch) идут нативно с устройства под контролем разрешений приложения; код и шелл ходят из VM по её сетевому allowlist'у. Наблюдение: из VM работает OAuth Device Flow — login-эндпоинты GitHub доступны; видимо, allowlist включает github.com целиком.</p></td>
+        <td><p>Keychain и SSH-ключи невидимы — но это единственный песочничный контур, где настоящий токен добывается прямо изнутри среды: device flow выдаёт <code>gho_…</code>-токен с широким scope <code>repo</code> (все приватные репо аккаунта); в облачных песочницах добыча заблокирована — токен можно только принести. Принесённый PAT живёт в среде как есть. Облако защищено брокером, этот контур — только сетевым списком.</p></td>
+        <td class="worst"><p>Подключённые папки целиком — запись идёт сразу на диск; плюс токен, если он в среде: scope <code>repo</code> — это все приватные репозитории аккаунта. Кейчейн, куки и остальные файлы за стенками.</p></td>
+      </tr>
+
+      <tr>
+        <td class="contour cowork">Cowork · облако<span class="hint">контейнер у Anthropic</span></td>
+        <td><p>Обе среды у Anthropic: контейнер на сессию, уничтожается вместе с ней. Стенки контейнера тоньше VM (общее ядро Linux), но от твоей машины контур отделён самой удалённостью.</p></td>
+        <td><p>Твой диск — только через мост десктоп-приложения: файл копируется в облако разовым снимком, результат записывается обратно; работает, пока приложение онлайн. Удалять мост не умеет (<code>rm → Operation not permitted</code>).</p></td>
+        <td><p>Из контейнера — по allowlist'у; эндпоинты выдачи токенов не форвардятся — device flow из облака невозможен даже с твоего согласия. Мостовая VM на Mac вовсе без сети (CONNECT → 403): у облака сеть без файлов, у VM файлы без сети.</p></td>
+        <td><p>Кредо-прокси: настоящие ключи у брокера, в песочницу не попадают никогда; в окружении суррогат <code>GH_TOKEN</code>, который прокси подменяет только для прикреплённых репозиториев — а прикрепления у Cowork нет, суррогат мёртв (403). Работает только принесённый готовый PAT — прокси форвардит его как есть.</p></td>
+        <td class="worst"><p>То, что сам занёс: скопированные в сессию файлы и принесённый PAT; плюс подключённая папка через мост, пока приложение онлайн (удалить файлы мост не может). Машина и её секреты недосягаемы.</p></td>
+      </tr>
+
+      <tr>
+        <td class="contour code">Code · локально<span class="hint">прямое окружение машины</span></td>
+        <td><p>Прямое окружение машины — твои тулы, env, dev-сервер. Стенок нет по умолчанию (встроенная песочница Bash — <code>/sandbox</code> — существует, но выключена, пока не включишь); страховка — пошаговые подтверждения команд.</p></td>
+        <td><p>Вся машина в пределах прав твоего пользователя: рабочая папка напрямую, остальное открыто шеллу.</p></td>
+        <td><p>Твоя сеть целиком: интранет, localhost, страницы за твоей авторизацией — curl ходит от твоего имени, как ты из терминала.</p></td>
+        <td><p>Все креды как есть: SSH-ключи из <code>~/.ssh</code>, HTTPS-креды из keychain, переменные окружения, токены на диске. Git работает «сам собой» ровно поэтому.</p></td>
+        <td class="worst"><p>Максимальный из пяти: одна отравленная PDF — и свободный шелл дотягивается до всей машины: кейчейн, куки, SSH-ключи, все файлы. Единственный контур, где ущерб ограничивают не стенки, а твой палец на подтверждениях.</p></td>
+      </tr>
+
+      <tr>
+        <td class="contour code">Code · облако<span class="hint">VM у Anthropic</span></td>
+        <td><p>VM на серверах Anthropic: собственное ядро, стенки толще контейнера — внутри доступен даже Docker; своя на сессию, умирает с ней.</p></td>
+        <td><p>Только клон репозитория, прикреплённого к сессии; твой локальный диск недоступен. Наружу один путь — <code>git push</code>: ветка, PR.</p></td>
+        <td><p>По умолчанию — по allowlist'у (уровень Trusted: пакетные реестры, GitHub, cloud SDK); владелец окружения может сузить до None или открыть до Full — любой домен. Git-трафик идёт через кредо-прокси; эндпоинты выдачи токенов не форвардятся — добыть настоящий ключ изнутри нельзя.</p></td>
+        <td><p>Кредо-прокси: в среде суррогат <code>GH_TOKEN</code>, настоящими кредами прокси подменяет его только для репозитория этой сессии; push ограничен текущей рабочей веткой. Скоуп двухступенчатый: потолок — то, что видит подключённый GitHub-аккаунт, выбор при старте сессии — конкретное репо (установка GitHub App на репозитории нужна только для Auto-fix).</p></td>
+        <td class="worst"><p>Порча — только текущая ветка push'а прикреплённого репозитория: даже уговорённый агент упрётся в прокси, а испорченный код виден на ревью PR. Утечка — содержимое репо и занесённые в сессию секреты по сети, в пределах её уровня доступа. Машина недосягаема.</p></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Выводы-эвристики</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Недоверенный контент — только за стенки</h3>
+      <p>Письма, чужие PDF, веб-страницы приносят инъекции — скармливай их контурам со стенками: Chat, обоим Cowork, облачному Code. В локальный Code недоверенное не носят: там инъекция получает всю машину.</p>
+    </div>
+    <div class="card">
+      <h3>Секрет, попавший в среду, — скомпрометирован</h3>
+      <p>Проектируй так, будто всё, что оказалось в песочнице, агент может слить. Так устроен кредо-прокси: настоящие ключи у брокера, в среде — суррогаты, привязанные к паре «сессия — репозиторий». Если ключ всё же нужен в среде — минимальный: fine-grained PAT на один репозиторий со сроком действия, а не <code>gho_…</code> со scope <code>repo</code>.</p>
+    </div>
+    <div class="card">
+      <h3>Автономность куплена containment'ом</h3>
+      <p>Отпустить агента — длинные сессии, закрытый ноутбук, задачи по расписанию — можно только там, где ущерб заранее ограничен стенками. Локальный Code зеркален: полный доступ к машине в обмен на пошаговый контроль. Цепочка одна: сначала containment, потом автономность.</p>
+    </div>
+  </div>
+
+  <div class="updated">Обновлено 09.08.2026 · факты выверены адверсариальной проверкой (78 утверждений, 11 уточнено) по <a href="claude-modes-table.html" style="color:inherit">«Справочнику режимов»</a> (глава 5), support.claude.com и code.claude.com/docs</div>
+</div>
+</body>
+</html>
